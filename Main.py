@@ -57,7 +57,7 @@ def run():
         df_casas = pd.DataFrame(result, columns=column_names)   
 
         return df_casas
-    df_casas = casas()
+    st.session_state["df_casas"] = casas()
 
     @st.cache_data(show_spinner=False)
     def extrato_zig():
@@ -68,7 +68,7 @@ def run():
         df_extrato_zig['Data_Transacao'] = pd.to_datetime(df_extrato_zig['Data_Transacao']) 
 
         return df_extrato_zig
-    df_extrato_zig = extrato_zig()
+    st.session_state["df_extrato_zig"] = extrato_zig()
 
     @st.cache_data(show_spinner=False)
     def zig_faturamento():
@@ -78,7 +78,7 @@ def run():
         df_zig_faturam['Data_Venda'] = pd.to_datetime(df_zig_faturam['Data_Venda']) 
 
         return df_zig_faturam
-    df_zig_faturam = zig_faturamento()    
+    st.session_state["df_zig_faturam"] = zig_faturamento()    
 
     @st.cache_data(show_spinner=False)
     def parcelas_receit_extr():
@@ -90,7 +90,7 @@ def run():
         df_parc_receit_extr['Recebimento_Parcela'] = pd.to_datetime(df_parc_receit_extr['Recebimento_Parcela'])
 
         return df_parc_receit_extr
-    df_parc_receit_extr = parcelas_receit_extr()    
+    st.session_state["df_parc_receit_extr"] = parcelas_receit_extr()    
 
     @st.cache_data(show_spinner=False)
     def custos_blueme_sem_parcelam():
@@ -104,7 +104,7 @@ def run():
         df_custos_blueme_sem_parcelam['Data_Lancamento'] = pd.to_datetime(df_custos_blueme_sem_parcelam['Data_Lancamento'], errors='coerce') 
 
         return df_custos_blueme_sem_parcelam
-    df_custos_blueme_sem_parcelam = custos_blueme_sem_parcelam()  
+    st.session_state["df_custos_blueme_sem_parcelam"] = custos_blueme_sem_parcelam()  
 
     @st.cache_data(show_spinner=False)
     def custos_blueme_com_parcelam():
@@ -117,7 +117,7 @@ def run():
         df_custos_blueme_com_parcelam['Data_Lancamento'] = pd.to_datetime(df_custos_blueme_com_parcelam['Data_Lancamento'], errors='coerce') 
 
         return df_custos_blueme_com_parcelam
-    df_custos_blueme_com_parcelam = custos_blueme_com_parcelam()
+    st.session_state["df_custos_blueme_com_parcelam"] = custos_blueme_com_parcelam()
     
     @st.cache_data(show_spinner=False)
     def extratos_bancarios():
@@ -127,7 +127,7 @@ def run():
         df_extratos_bancarios['Data_Transacao'] = pd.to_datetime(df_extratos_bancarios['Data_Transacao'], errors='coerce')
 
         return df_extratos_bancarios
-    df_extratos_bancarios = extratos_bancarios()     
+    st.session_state["df_extratos_bancarios"] = extratos_bancarios()     
 
     @st.cache_data(show_spinner=False)
     def mutuos():
@@ -137,7 +137,7 @@ def run():
         df_mutuos['Data_Mutuo'] = pd.to_datetime(df_mutuos['Data_Mutuo'], errors='coerce') 
 
         return df_mutuos
-    df_mutuos = mutuos()         
+    st.session_state["df_mutuos"] = mutuos()         
 
     @st.cache_data(show_spinner=False)
     def tesouraria():
@@ -147,7 +147,7 @@ def run():
         df_tesouraria['Data_Transacao'] = pd.to_datetime(df_tesouraria['Data_Transacao'], errors='coerce') 
 
         return df_tesouraria
-    df_tesouraria = tesouraria()      
+    st.session_state["df_tesouraria"] = tesouraria()      
 
     @st.cache_data(show_spinner=False)
     def ajustes_conciliacao():
@@ -157,7 +157,7 @@ def run():
         df_ajustes_conciliacao['Data_Ajuste'] = pd.to_datetime(df_ajustes_conciliacao['Data_Ajuste'], errors='coerce') 
 
         return df_ajustes_conciliacao
-    df_ajustes_conciliacao = ajustes_conciliacao()
+    st.session_state["df_ajustes_conciliacao"] = ajustes_conciliacao()
 
     @st.cache_data(show_spinner=False)
     def bloqueios_judiciais():
@@ -167,7 +167,7 @@ def run():
         df_bloqueios_judiciais['Data_Transacao'] = pd.to_datetime(df_bloqueios_judiciais['Data_Transacao'], errors='coerce') 
 
         return df_bloqueios_judiciais
-    df_bloqueios_judiciais = bloqueios_judiciais()  
+    st.session_state["df_bloqueios_judiciais"] = bloqueios_judiciais()  
 
     @st.cache_data(show_spinner=False)
     def tipo_class_cont_2():
@@ -175,7 +175,7 @@ def run():
         df_tipo_class_cont_2 = pd.DataFrame(result, columns=column_names)
 
         return df_tipo_class_cont_2
-    df_tipo_class_cont_2 = tipo_class_cont_2()
+    st.session_state["df_tipo_class_cont_2"] = tipo_class_cont_2()
 
     @st.cache_data(show_spinner=False)
     def orcamentos():
@@ -183,7 +183,7 @@ def run():
         df_orcamentos = pd.DataFrame(result, columns=column_names)
 
         return df_orcamentos
-    df_orcamentos = orcamentos()
+    st.session_state["df_orcamentos"] = orcamentos()
     
     @st.cache_data(show_spinner=False)
     def faturamento_agregado():
@@ -191,30 +191,16 @@ def run():
         df_faturamento_agregado = pd.DataFrame(result, columns=column_names)
 
         return df_faturamento_agregado
-    df_faturamento_agregado = faturamento_agregado()
+    st.session_state["df_faturamento_agregado"] = faturamento_agregado()
 
-    # Lista de (chave_session, função_loader)
-    datasets = [
-        ("df_casas", df_casas),
-        ("df_extrato_zig", df_extrato_zig),
-        ("df_zig_faturam", df_zig_faturam),
-        ("df_parc_receit_extr", df_parc_receit_extr),
-        ("df_custos_blueme_sem_parcelam", df_custos_blueme_sem_parcelam),
-        ("df_custos_blueme_com_parcelam", df_custos_blueme_com_parcelam),
-        ("df_extratos_bancarios", df_extratos_bancarios),
-        ("df_mutuos",df_mutuos),
-        ("df_tesouraria", df_tesouraria),
-        ("df_ajustes_conciliacao", df_ajustes_conciliacao),
-        ("df_bloqueios_judiciais", df_bloqueios_judiciais),
-        ("df_tipo_class_cont_2", df_tipo_class_cont_2),
-        ("df_orcamentos", df_orcamentos),
-        ("df_faturamento_agregado", df_faturamento_agregado)
-    ]
+    @st.cache_data(show_spinner=False)
+    def eventos():
+        result, column_names = execute_query(GET_EVENTOS, conn_fb)
+        df_eventos = pd.DataFrame(result, columns=column_names)
 
-    # Carrega e salva no session_state apenas se não existir
-    for key, df in datasets:
-        if key not in st.session_state:
-            st.session_state[key] = df
+        return df_eventos
+    st.session_state["df_eventos"] = eventos()
+
     
     # Personaliza menu lateral
     pg = st.navigation({

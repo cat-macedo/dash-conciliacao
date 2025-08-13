@@ -15,15 +15,15 @@ import streamlit.components.v1 as components
 
 
 ## Personaliza menu lateral
-def config_sidebar():
-  pg = st.navigation({
-    "Menu": [
-      st.Page("pages/2_Conciliações_FB.py", title="Conciliações FB"),
-      st.Page("pages/3_Fluxo_de_Caixa.py", title="Fluxo de Caixa"),
-    ]
-  })
-  st.sidebar.button(label="Logout", on_click=logout)
-  pg.run()
+# def config_sidebar():
+#   pg = st.navigation({
+#     "Menu": [
+#       st.Page("pages/2_Conciliações_FB.py", title="Conciliações FB"),
+#       st.Page("pages/3_Fluxo_de_Caixa.py", title="Fluxo de Caixa"),
+#     ]
+#   })
+#   st.sidebar.button(label="Logout", on_click=logout)
+#   pg.run()
 
 
 # Função auxiliar para somar valores agrupados por data
@@ -73,6 +73,7 @@ def format_columns_percentage(df, numeric_columns):
   return df  
 
 
+# Funções excel
 def export_to_excel(df, sheet_name, excel_filename):
   if os.path.exists(excel_filename):
     wb = openpyxl.load_workbook(excel_filename)

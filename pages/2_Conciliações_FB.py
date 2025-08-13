@@ -65,7 +65,9 @@ else:
 
     # Obtendo o ID da casa selecionada
     id_casa = mapeamento_lojas[casa]
-    st.write('ID da casa selecionada:', id_casa)
+    # st.write('ID da casa selecionada:', id_casa)
+    if id_casa == 157 or casa == "All bar":
+        st.warning("Selecione uma casa")
 
     st.divider()
 
@@ -201,7 +203,7 @@ else:
     st.subheader("Bloqueios Judiciais")
     df_bloqueios_judiciais = st.session_state["df_bloqueios_judiciais"]
     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais[df_bloqueios_judiciais['ID_Casa'] == id_casa]
-    df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao_filtrada[(df_ajustes_conciliacao_filtrada["Data_Ajuste"] >= start_date) & (df_ajustes_conciliacao_filtrada["Data_Ajuste"] <= end_date)] 
+    df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
 
     # if able_date_filter:
     #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
@@ -209,7 +211,21 @@ else:
     #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada
 
     st.dataframe(df_bloqueios_judiciais_filtrada, use_container_width=True, hide_index=True)
-    st.divider()    
+    st.divider()   
+
+    ## Eventos
+    st.subheader("Eventos")
+    df_eventos = st.session_state["df_eventos"]
+    df_eventos_filtrada = df_eventos[df_eventos['ID_Casa'] == id_casa]
+    df_eventos_filtrada = df_eventos_filtrada[(df_eventos_filtrada["Recebimento Parcela"] >= start_date) & (df_eventos_filtrada["Recebimento Parcela"] <= end_date)] 
+
+    # if able_date_filter:
+    #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
+    # else:
+    #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada
+
+    st.dataframe(df_eventos_filtrada, use_container_width=True, hide_index=True)
+    st.divider() 
 
 
     ## Planilha de Conciliação
@@ -244,7 +260,9 @@ else:
 
     # Eventos (desmembrar de Receitas Extraordinárias) -> stand-by #
     if 'Eventos' not in df_conciliacao.columns:
-        df_conciliacao['Eventos'] = None
+        df_conciliacao['Eventos'] = somar_por_data(
+            df_eventos_filtrada, "Recebimento Parcela", "Valor Parcela", datas
+        )
 
     # Entradas Mutuos #
     if 'Entradas Mútuos' not in df_conciliacao.columns:
@@ -399,6 +417,6 @@ else:
                 st.download_button(
                 label="Clique para baixar o arquivo Excel",
                 data=file_content,
-                file_name="Conciliacao_FB.xlsx",
+                file_name=f"Conciliacao_FB - {casa}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
