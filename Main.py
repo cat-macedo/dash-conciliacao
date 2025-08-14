@@ -4,7 +4,6 @@ import pandas as pd
 import os
 import numpy as np
 from datetime import datetime
-import mysql.connector
 from utils.queries import *
 from utils.user import *
 from utils.functions.general_functions import *
@@ -201,17 +200,6 @@ def run():
         return df_eventos
     st.session_state["df_eventos"] = eventos()
 
-    
-    # Personaliza menu lateral
-    pg = st.navigation({
-    "Menu": [
-      st.Page("pages/2_Conciliações_FB.py", title="Conciliações FB"),
-      st.Page("pages/3_Fluxo_de_Caixa.py", title="Fluxo de Caixa"),
-    ]
-    })
-    st.sidebar.button(label="Logout", on_click=logout)
-    pg.run()
-
 
 def main():
     ######## Config Pag ##########
@@ -220,8 +208,6 @@ def main():
     page_icon="💰",
     )
     
-    # with st.sidebar:
-    #     st.button(label="Logout", on_click=logout)
 
     if "loggedIn" not in st.session_state:
         st.session_state["loggedIn"] = False
@@ -231,7 +217,10 @@ def main():
         show_login_page()
         st.stop()
     else:
-        run()        
+        run()  
+        st.switch_page("pages/Conciliações.py") 
+        # Personaliza menu lateral
+        config_sidebar()     
 
 
 if __name__ == "__main__":

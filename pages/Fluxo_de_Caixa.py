@@ -11,14 +11,20 @@ from utils.queries import *
 from workalendar.america import Brazil
 
 
-
 st.set_page_config(
     page_title="Fluxo de Caixa FB",
     page_icon="💰",
     layout="wide"
 )
 
-st.title("📊 Fluxo de Caixa Futuro")
+# Se der refresh, volta para página de login
+if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
+	st.switch_page('Main.py')
+
+# Personaliza menu lateral
+config_sidebar()
+
+st.title("📊 Fluxo de Caixa Futuro FB")
 st.divider()
 
 # Filtrando Data

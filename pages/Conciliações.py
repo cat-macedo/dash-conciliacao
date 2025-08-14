@@ -13,7 +13,14 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title(":moneybag: Conciliação")
+# Se der refresh, volta para página de login
+if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
+	st.switch_page('Main.py')
+
+# Personaliza menu lateral
+config_sidebar()
+
+st.title(":moneybag: Conciliação FB")
 st.divider()
 
 

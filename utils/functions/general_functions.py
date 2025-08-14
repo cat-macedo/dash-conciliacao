@@ -14,16 +14,17 @@ from st_aggrid.shared import StAggridTheme
 import streamlit.components.v1 as components
 
 
-## Personaliza menu lateral
-# def config_sidebar():
-#   pg = st.navigation({
-#     "Menu": [
-#       st.Page("pages/2_Conciliações_FB.py", title="Conciliações FB"),
-#       st.Page("pages/3_Fluxo_de_Caixa.py", title="Fluxo de Caixa"),
-#     ]
-#   })
-#   st.sidebar.button(label="Logout", on_click=logout)
-#   pg.run()
+# Personaliza menu lateral
+def config_sidebar():
+  if st.session_state["loggedIn"]:
+    with st.sidebar:
+        st.title("Menu")
+        st.page_link("pages/Conciliações.py", label="💰 Conciliações")
+        st.page_link("pages/Ajustes.py", label="  ↳ 📄 Ajustes")
+        st.write("")
+        st.page_link("pages/Fluxo_de_Caixa.py", label="📊 Fluxo de Caixa")
+        st.write("")
+        st.button(label="Logout", on_click=logout)
 
 
 # Formata valores numéricos e datas 
