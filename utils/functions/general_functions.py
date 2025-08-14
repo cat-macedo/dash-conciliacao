@@ -26,6 +26,25 @@ import streamlit.components.v1 as components
 #   pg.run()
 
 
+# Formata valores numéricos e datas 
+def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date): 
+    df_filtrado = df[df['ID_Casa'] == id_casa] 
+    df_filtrado = df_filtrado[(df_filtrado[coluna_data] >= start_date) & (df_filtrado[coluna_data] <= end_date)] 
+    
+    # Copia para formatação brasileira de colunas numéricas 
+    df_formatado = df_filtrado.copy() 
+    
+    # Aplica formatação brasileira em colunas numéricas 
+    for col in df_formatado.select_dtypes(include='object').columns: 
+        if col != "Doc_NF":
+            df_formatado[col] = df_formatado[col].apply(format_brazilian) 
+    
+    # Aplica formatação brasileira em colunas de data 
+    for col in df_formatado.select_dtypes(include='datetime').columns: 
+        df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y %H:%M') 
+    return df_filtrado, df_formatado
+
+
 # Função auxiliar para somar valores agrupados por data
 def somar_por_data(df, col_data, col_valor, datas):
   s = df.groupby(col_data)[col_valor].sum()

@@ -16,8 +16,6 @@ st.set_page_config(
 st.title(":moneybag: Conciliação")
 st.divider()
 
-# Adicionando o checkbox para desativar o filtro de datas
-# able_date_filter = st.checkbox("Filtrar datas")
 
 # Filtrando Data
 today = datetime.datetime.now()
@@ -76,85 +74,61 @@ else:
     ## Extratos Zig
     st.subheader("Extrato Zig")
     df_extrato_zig = st.session_state["df_extrato_zig"]
-    df_extrato_zig_filtrada = df_extrato_zig[df_extrato_zig['ID_Casa'] == id_casa]
-    df_extrato_zig_filtrada = df_extrato_zig_filtrada[(df_extrato_zig_filtrada["Data_Liquidacao"] >= start_date) & (df_extrato_zig_filtrada["Data_Liquidacao"] <= end_date)]
+    # df_extrato_zig_filtrada = df_extrato_zig[df_extrato_zig['ID_Casa'] == id_casa]
+    # df_extrato_zig_filtrada = df_extrato_zig_filtrada[(df_extrato_zig_filtrada["Data_Liquidacao"] >= start_date) & (df_extrato_zig_filtrada["Data_Liquidacao"] <= end_date)]
+    df_extrato_zig_filtrada, df_extrato_zig_formatada = filtra_formata_df(df_extrato_zig, "Data_Liquidacao", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_extrato_zig_filtrada = df_extrato_zig_filtrada[(df_extrato_zig_filtrada["Data_Liquidacao"] >= start_date) & (df_extrato_zig_filtrada["Data_Liquidacao"] <= end_date)]
-    # else:    
-    #     df_extrato_zig_filtrada = df_extrato_zig_filtrada
-
-    st.dataframe(df_extrato_zig_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_extrato_zig_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Zig_Faturamento
     st.subheader("Zig Faturamento")
     df_zig_faturam = st.session_state["df_zig_faturam"]
-    df_zig_faturam_filtrada = df_zig_faturam[df_zig_faturam['ID_Casa'] == id_casa]
-    df_zig_faturam_filtrada = df_zig_faturam_filtrada[(df_zig_faturam_filtrada["Data_Venda"] >= start_date) & (df_zig_faturam_filtrada["Data_Venda"] <= end_date)]
+    # df_zig_faturam_filtrada = df_zig_faturam[df_zig_faturam['ID_Casa'] == id_casa]
+    # df_zig_faturam_filtrada = df_zig_faturam_filtrada[(df_zig_faturam_filtrada["Data_Venda"] >= start_date) & (df_zig_faturam_filtrada["Data_Venda"] <= end_date)]
+    df_zig_faturam_filtrada, df_zig_faturam_formatada= filtra_formata_df(df_zig_faturam, "Data_Venda", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_zig_faturam_filtrada = df_zig_faturam_filtrada[(df_zig_faturam_filtrada["Data_Venda"] >= start_date) & (df_zig_faturam_filtrada["Data_Venda"] <= end_date)]
-    # else:    
-    #     df_zig_faturam_filtrada = df_zig_faturam_filtrada
-
-    st.dataframe(df_zig_faturam_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_zig_faturam_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Parcelas Receitas Extraordinarias
     st.subheader("Parcelas Receitas Extraordinárias")
     df_parc_receit_extr = st.session_state["df_parc_receit_extr"]
-    df_parc_receit_extr_filtrada = df_parc_receit_extr[df_parc_receit_extr['ID_Casa'] == id_casa]
-    df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[(df_parc_receit_extr_filtrada["Recebimento_Parcela"] >= start_date) & (df_parc_receit_extr_filtrada["Recebimento_Parcela"] <= end_date)]
+    # df_parc_receit_extr_filtrada = df_parc_receit_extr[df_parc_receit_extr['ID_Casa'] == id_casa]
+    # df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[(df_parc_receit_extr_filtrada["Recebimento_Parcela"] >= start_date) & (df_parc_receit_extr_filtrada["Recebimento_Parcela"] <= end_date)]
+    df_parc_receit_extr_filtrada, df_parc_receit_extr_formatada = filtra_formata_df(df_parc_receit_extr, "Recebimento_Parcela", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[(df_parc_receit_extr_filtrada["Recebimento_Parcela"] >= start_date) & (df_parc_receit_extr_filtrada["Recebimento_Parcela"] <= end_date)]
-    # else:
-    #     df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada
-
-    st.dataframe(df_parc_receit_extr_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_parc_receit_extr_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Custos BlueMe Sem Parcelamento
     st.subheader("Despesas BlueMe Sem Parcelamento")
     df_custos_blueme_sem_parcelam = st.session_state["df_custos_blueme_sem_parcelam"]
-    df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam[df_custos_blueme_sem_parcelam['ID_Casa'] == id_casa]
-    df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam_filtrada[(df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] >= start_date) & (df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] <= end_date)]
+    # df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam[df_custos_blueme_sem_parcelam['ID_Casa'] == id_casa]
+    # df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam_filtrada[(df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] >= start_date) & (df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] <= end_date)]
+    df_custos_blueme_sem_parcelam_filtrada, df_custos_blueme_sem_parcelam_formatada = filtra_formata_df(df_custos_blueme_sem_parcelam, "Realizacao_Pgto", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam_filtrada[(df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] >= start_date) & (df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] <= end_date)]
-    # else:    
-    #     df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam_filtrada
-
-    st.dataframe(df_custos_blueme_sem_parcelam_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_custos_blueme_sem_parcelam_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Custos BlueMe Com Parcelamento
     st.subheader("Despesas BlueMe Com Parcelamento")
     df_custos_blueme_com_parcelam = st.session_state["df_custos_blueme_com_parcelam"]
-    df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam[df_custos_blueme_com_parcelam['ID_Casa'] == id_casa]
-    df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam_filtrada[(df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] >= start_date) & (df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] <= end_date)] 
+    # df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam[df_custos_blueme_com_parcelam['ID_Casa'] == id_casa]
+    # df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam_filtrada[(df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] >= start_date) & (df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] <= end_date)] 
+    df_custos_blueme_com_parcelam_filtrada, df_custos_blueme_com_parcelam_formatada = filtra_formata_df(df_custos_blueme_com_parcelam, "Realiz_Parcela", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam_filtrada[(df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] >= start_date) & (df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] <= end_date)] 
-    # else:
-    #     df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam_filtrada
-
-    st.dataframe(df_custos_blueme_com_parcelam_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_custos_blueme_com_parcelam_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Extratos Bancarios
     st.subheader("Extratos Bancários")
     df_extratos_bancarios = st.session_state["df_extratos_bancarios"]
-    df_extratos_bancarios_filtrada = df_extratos_bancarios[df_extratos_bancarios['ID_Casa'] == id_casa]
-    df_extratos_bancarios_filtrada = df_extratos_bancarios_filtrada[(df_extratos_bancarios_filtrada["Data_Transacao"] >= start_date) & (df_extratos_bancarios_filtrada["Data_Transacao"] <= end_date)] 
+    # df_extratos_bancarios_filtrada = df_extratos_bancarios[df_extratos_bancarios['ID_Casa'] == id_casa]
+    # df_extratos_bancarios_filtrada = df_extratos_bancarios_filtrada[(df_extratos_bancarios_filtrada["Data_Transacao"] >= start_date) & (df_extratos_bancarios_filtrada["Data_Transacao"] <= end_date)] 
+    df_extratos_bancarios_filtrada, df_extratos_bancarios_formatada = filtra_formata_df(df_extratos_bancarios, "Data_Transacao", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_extratos_bancarios_filtrada = df_extratos_bancarios_filtrada[(df_extratos_bancarios_filtrada["Data_Transacao"] >= start_date) & (df_extratos_bancarios_filtrada["Data_Transacao"] <= end_date)] 
-    # else:
-    #     df_extratos_bancarios_filtrada = df_extratos_bancarios_filtrada
-
-    st.dataframe(df_extratos_bancarios_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_extratos_bancarios_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Mutuos
@@ -162,69 +136,60 @@ else:
     df_mutuos = st.session_state["df_mutuos"]
     df_mutuos_filtrada = df_mutuos[(df_mutuos['ID_Casa_Saida'] == id_casa) | (df_mutuos['ID_Casa_Entrada'] == id_casa)] 
     df_mutuos_filtrada = df_mutuos_filtrada[(df_mutuos["Data_Mutuo"] >= start_date) & (df_mutuos_filtrada["Data_Mutuo"] <= end_date)] 
-
-    # if able_date_filter:
-    #     df_mutuos_filtrada = df_mutuos_filtrada[(df_mutuos["Data_Mutuo"] >= start_date) & (df_mutuos_filtrada["Data_Mutuo"] <= end_date)] 
-    # else:
-    #     df_mutuos_filtrada = df_mutuos_filtrada
-
-    st.dataframe(df_mutuos_filtrada, use_container_width=True, hide_index=True)
+   
+   # Copia para formatação brasileira de colunas numéricas 
+    df_mutuos_formatada = df_mutuos_filtrada.copy() 
+    
+    # Aplica formatação brasileira em colunas numéricas 
+    for col in df_mutuos_formatada.select_dtypes(include='object').columns: 
+        if col != "Doc_NF":
+            df_mutuos_formatada[col] = df_mutuos_formatada[col].apply(format_brazilian) 
+    
+    # Aplica formatação brasileira em colunas de data 
+    for col in df_mutuos_formatada.select_dtypes(include='datetime').columns: 
+        df_mutuos_formatada[col] = pd.to_datetime(df_mutuos_formatada[col]).dt.strftime('%d-%m-%Y %H:%M') 
+    
+    st.dataframe(df_mutuos_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Tesouraria
     st.subheader("Tesouraria")
     df_tesouraria = st.session_state["df_tesouraria"]
-    df_tesouraria_filtrada = df_tesouraria[df_tesouraria['ID_Casa'] == id_casa]
-    df_tesouraria_filtrada = df_tesouraria_filtrada[(df_tesouraria_filtrada["Data_Transacao"] >= start_date) & (df_tesouraria_filtrada["Data_Transacao"] <= end_date)] 
+    # df_tesouraria_filtrada = df_tesouraria[df_tesouraria['ID_Casa'] == id_casa]
+    # df_tesouraria_filtrada = df_tesouraria_filtrada[(df_tesouraria_filtrada["Data_Transacao"] >= start_date) & (df_tesouraria_filtrada["Data_Transacao"] <= end_date)] 
+    df_tesouraria_filtrada, df_tesouraria_formatada = filtra_formata_df(df_tesouraria, "Data_Transacao", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_tesouraria_filtrada = df_tesouraria_filtrada[(df_tesouraria_filtrada["Data_Transacao"] >= start_date) & (df_tesouraria_filtrada["Data_Transacao"] <= end_date)] 
-    # else:
-    #     df_tesouraria_filtrada = df_tesouraria_filtrada
-
-    st.dataframe(df_tesouraria_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_tesouraria_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Ajustes Conciliação
     st.subheader("Ajustes Conciliação")
     df_ajustes_conciliacao = st.session_state["df_ajustes_conciliacao"]
-    df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao[df_ajustes_conciliacao['ID_Casa'] == id_casa]
-    df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao_filtrada[(df_ajustes_conciliacao_filtrada["Data_Ajuste"] >= start_date) & (df_ajustes_conciliacao_filtrada["Data_Ajuste"] <= end_date)] 
+    # df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao[df_ajustes_conciliacao['ID_Casa'] == id_casa]
+    # df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao_filtrada[(df_ajustes_conciliacao_filtrada["Data_Ajuste"] >= start_date) & (df_ajustes_conciliacao_filtrada["Data_Ajuste"] <= end_date)] 
+    df_ajustes_conciliacao_filtrada, df_ajustes_conciliacao_formatada = filtra_formata_df(df_ajustes_conciliacao, "Data_Ajuste", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao_filtrada[(df_ajustes_conciliacao_filtrada["Data_Ajuste"] >= start_date) & (df_ajustes_conciliacao_filtrada["Data_Ajuste"] <= end_date)] 
-    # else:
-    #     df_ajustes_conciliacao_filtrada = df_ajustes_conciliacao_filtrada
-
-    st.dataframe(df_ajustes_conciliacao_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_ajustes_conciliacao_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
     ## Bloqueios Judiciais
     st.subheader("Bloqueios Judiciais")
     df_bloqueios_judiciais = st.session_state["df_bloqueios_judiciais"]
-    df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais[df_bloqueios_judiciais['ID_Casa'] == id_casa]
-    df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
+    # df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais[df_bloqueios_judiciais['ID_Casa'] == id_casa]
+    # df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
+    df_bloqueios_judiciais_filtrada, df_bloqueios_judiciais_formatada = filtra_formata_df(df_bloqueios_judiciais, "Data_Transacao", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
-    # else:
-    #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada
-
-    st.dataframe(df_bloqueios_judiciais_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_bloqueios_judiciais_formatada, use_container_width=True, hide_index=True)
     st.divider()   
 
     ## Eventos
     st.subheader("Eventos")
     df_eventos = st.session_state["df_eventos"]
-    df_eventos_filtrada = df_eventos[df_eventos['ID_Casa'] == id_casa]
-    df_eventos_filtrada = df_eventos_filtrada[(df_eventos_filtrada["Recebimento Parcela"] >= start_date) & (df_eventos_filtrada["Recebimento Parcela"] <= end_date)] 
+    # df_eventos_filtrada = df_eventos[df_eventos['ID_Casa'] == id_casa]
+    # df_eventos_filtrada = df_eventos_filtrada[(df_eventos_filtrada["Recebimento Parcela"] >= start_date) & (df_eventos_filtrada["Recebimento Parcela"] <= end_date)] 
+    df_eventos_filtrada, df_eventos_formatada = filtra_formata_df(df_eventos, "Recebimento Parcela", id_casa, start_date, end_date)
 
-    # if able_date_filter:
-    #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[(df_bloqueios_judiciais_filtrada["Data_Transacao"] >= start_date) & (df_bloqueios_judiciais_filtrada["Data_Transacao"] <= end_date)] 
-    # else:
-    #     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada
-
-    st.dataframe(df_eventos_filtrada, use_container_width=True, hide_index=True)
+    st.dataframe(df_eventos_formatada, use_container_width=True, hide_index=True)
     st.divider() 
 
 
@@ -292,7 +257,7 @@ else:
     # Diferenças (Contas a Receber) #
     if 'Diferenças (Contas a Receber)' not in df_conciliacao.columns:
         df_conciliacao['Diferenças (Contas a Receber)'] = calcula_diferencas(
-            df_conciliacao, "Extrato Bancário (Crédito)", ['Extrato Zig (Saques)', 'Faturam dinheiro', 'Receitas Extraordinárias', 'Entradas Mútuos', 'Desbloqueios Judiciais']
+            df_conciliacao, "Extrato Bancário (Crédito)", ['Extrato Zig (Saques)', 'Faturam dinheiro', 'Receitas Extraordinárias', 'Eventos', 'Entradas Mútuos', 'Desbloqueios Judiciais']
         )
 
     # Custos sem parcelamento #
@@ -410,13 +375,14 @@ else:
         st.success('Arquivo atualizado com sucesso!')
 
 
-    if st.button('Baixar Excel'):
-        if os.path.exists(excel_filename):
-            with open(excel_filename, "rb") as file:
-                file_content = file.read()
-                st.download_button(
-                label="Clique para baixar o arquivo Excel",
-                data=file_content,
-                file_name=f"Conciliacao_FB - {casa}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+    # Botão de Download Direto
+    if os.path.exists(excel_filename):
+        with open(excel_filename, "rb") as file:
+            file_content = file.read()
+            st.download_button(
+            label="Baixar Excel",
+            data=file_content,
+            file_name=f"Conciliacao_FB - {casa}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
