@@ -28,10 +28,13 @@ def config_sidebar():
 
 
 # Formata valores numéricos e datas 
-def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date): 
-    df_filtrado = df[df['ID_Casa'] == id_casa] 
-    df_filtrado = df_filtrado[(df_filtrado[coluna_data] >= start_date) & (df_filtrado[coluna_data] <= end_date)] 
-    
+def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date):
+    if id_casa != 157: 
+        df_filtrado = df[df['ID_Casa'] == id_casa] 
+        df_filtrado = df_filtrado[(df_filtrado[coluna_data] >= start_date) & (df_filtrado[coluna_data] <= end_date)] 
+    else:    
+        df_filtrado = df[(df[coluna_data] >= start_date) & (df[coluna_data] <= end_date)] 
+
     # Copia para formatação brasileira de colunas numéricas 
     df_formatado = df_filtrado.copy() 
     

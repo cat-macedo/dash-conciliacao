@@ -63,17 +63,19 @@ else:
     # Filtrando casas
     df_casas = st.session_state["df_casas"]
     casas = df_casas['Casa'].tolist()
+    
+    # Troca o valor na lista
+    casas = ["Todas as casas" if c == "All bar" else c for c in casas]
     casa = st.selectbox("Casa", casas)
+    if casa == "Todas as casas":
+        casa = "All bar"
 
     # Definindo um dicionário para mapear nomes de casas a IDs de casas
-    mapeamento_lojas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
+    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
 
     # Obtendo o ID da casa selecionada
-    id_casa = mapeamento_lojas[casa]
-    # st.write('ID da casa selecionada:', id_casa)
-    if id_casa == 157 or casa == "All bar":
-        st.warning("Selecione uma casa")
-
+    id_casa = mapeamento_casas[casa]
+    
     st.divider()
 
     ### Definindo Bases - Filtra por casa e data ###
@@ -210,6 +212,14 @@ else:
         datas = pd.date_range(start=start_date, end=end_date)
         df_conciliacao['Data'] = datas
 
+    ## Agrupar por data e casa
+    # if casa == "All bar":
+    #     df_casas_temp = pd.DataFrame({'Casa': df_casas['Casa']})
+    #     df_datas_temp = pd.DataFrame({'Data': datas})
+    #     df_conciliacao = pd.merge(df_datas_temp.assign(key=1), df_casas_temp.assign(key=1), on='key').drop('key', axis=1)
+    # else:
+    #     df_datas_temp = pd.DataFrame({'Data': datas})
+
 
     # Colunas 
 
@@ -333,11 +343,11 @@ else:
 
 
     # Exibe a tabela de conciliação
-    if id_casa == 157:
-        st.warning("Para visualizar a conciliação, selecione uma casa")
-        df_formatado = df_formatado
-    else: 
-        st.dataframe(df_formatado, use_container_width=True, hide_index=True)
+    # if id_casa == 157:
+    #     st.warning("Para visualizar a conciliação, selecione uma casa")
+    #     df_formatado = df_formatado
+    # else: 
+    st.dataframe(df_formatado, use_container_width=True, hide_index=True)
 
     st.divider()
 
