@@ -20,7 +20,7 @@ def config_sidebar():
     with st.sidebar:
         st.title("Menu")
         st.page_link("pages/Conciliações.py", label="💰 Conciliações")
-        st.page_link("pages/Ajustes.py", label="  ↳ 📄 Ajustes")
+        st.page_link("pages/Ajustes.py", label="  ↳ ⚖️ Ajustes")
         st.write("")
         st.page_link("pages/Fluxo_de_Caixa.py", label="📊 Fluxo de Caixa")
         st.write("")
@@ -48,21 +48,20 @@ def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date):
         df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y %H:%M') 
     return df_filtrado, df_formatado
 
-
-# Função auxiliar para somar valores agrupados por data
-def somar_por_data(df, col_data, col_valor, datas):
-  s = df.groupby(col_data)[col_valor].sum()
-  # s.index = pd.to_datetime(s.index).date  # garante que o índice é só data
-  return s.reindex(datas, fill_value=0).reset_index(drop=True).astype(float)
-
-
-# Função auxiliar para calcular diferenças de contas a pagar e receber
-def calcula_diferencas(df, coluna_principal, colunas_valores):
-  soma = 0
-  diferenca = 0
-  soma = sum(df[col] for col in colunas_valores)
-  diferenca = df[coluna_principal] - soma
-  return diferenca
+# Recebe df filtrado e só formata campos numéricos e de data
+def formata_df(df):
+    # Copia para formatação brasileira de colunas numéricas 
+    df_formatado = df.copy() 
+    
+    # Aplica formatação brasileira em colunas numéricas 
+    for col in df_formatado.select_dtypes(include='object').columns: 
+        if col != "Doc_NF":
+            df_formatado[col] = df_formatado[col].apply(format_brazilian) 
+    
+    # Aplica formatação brasileira em colunas de data 
+    for col in df_formatado.select_dtypes(include='datetime').columns: 
+        df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y %H:%M') 
+    return df_formatado
 
 
 # Funções para formatar números
@@ -75,12 +74,14 @@ def format_brazilian(num):
     except (ValueError, TypeError):
         return num
 
+# 
 def format_columns_brazilian(df, numeric_columns):
   for col in numeric_columns:
     if col in df.columns:
       df[col] = df[col].apply(format_brazilian)
   return df
 
+# 
 def format_percentage(num):
   try:
     num = float(num)
@@ -89,11 +90,32 @@ def format_percentage(num):
   except (ValueError, TypeError):
     return num  # Retorna o valor original em caso de erro
   
+# 
 def format_columns_percentage(df, numeric_columns):
   for col in numeric_columns:
     if col in df.columns:
       df[col] = df[col].apply(format_percentage)
   return df  
+
+
+# Função para formatar labels dos gráficos
+def valores_labels_formatados(lista_valores):
+    # Labels formatados
+    labels = [format_brazilian(v) for v in lista_valores]
+
+    # Dados com labels
+    lista_valores_formatados = [
+        {
+            "value": v, 
+            "label": {
+                "show": True,
+                "position": "top",
+                "formatter": lbl
+            }
+        }
+        for v, lbl in zip(lista_valores, labels)
+    ]
+    return lista_valores_formatados
 
 
 # Funções excel

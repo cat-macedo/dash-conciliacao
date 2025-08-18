@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 import calendar
 from utils.functions.general_functions import *
+from utils.functions.conciliacoes import *
 from utils.queries import *
 from workalendar.america import Brazil
 
@@ -58,8 +59,8 @@ end_date = pd.to_datetime(d_final)
 
 if start_date > end_date:
     st.warning("A data de fim deve ser maior que a data de início!")
-else:
 
+else:
     # Filtrando casas
     df_casas = st.session_state["df_casas"]
     casas = df_casas['Casa'].tolist()
