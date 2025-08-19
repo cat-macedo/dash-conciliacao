@@ -208,6 +208,7 @@ else:
 
     # Criar um DataFrame com todas as datas do período selecionado
     df_conciliacao = pd.DataFrame()
+    st.session_state['df_conciliacao'] = None
 
     if 'Data' not in df_conciliacao.columns:
         datas = pd.date_range(start=start_date, end=end_date)
@@ -329,6 +330,12 @@ else:
     # Conciliação # 
     if 'Conciliação' not in df_conciliacao.columns:
         df_conciliacao['Conciliação'] = df_conciliacao['Diferenças (Contas a Pagar)'] + df_conciliacao['Diferenças (Contas a Receber)'] - df_conciliacao['Ajustes Conciliação']
+        
+        # Garante que é float
+        df_conciliacao['Conciliação'] = pd.to_numeric(df_conciliacao['Conciliação'], errors='coerce')
+
+        # Zera valores muito pequenos 
+        df_conciliacao['Conciliação'] = df_conciliacao['Conciliação'].apply(lambda x: 0.0 if abs(x) < 0.005 else x)
 
 
     # Copia para formatação brasileira de colunas numéricas
@@ -348,7 +355,7 @@ else:
     #     st.warning("Para visualizar a conciliação, selecione uma casa")
     #     df_formatado = df_formatado
     # else: 
-    st.dataframe(df_formatado, use_container_width=True, hide_index=True)
+    st.dataframe(df_conciliacao, use_container_width=True, hide_index=True)
 
     st.divider()
 
@@ -403,4 +410,28 @@ else:
             file_name=f"Conciliacao_FB - {casa}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+            
+    st.divider()
+
+    # Farol de conciliação
+    st.subheader("🚦 Farol de conciliação")
+    nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    qtd_dias = []
+    year = end_date.year
+    for i in range(1, 13):
+        dias_no_mes = calendar.monthrange(year, i)[1]
+        qtd_dias.append(dias_no_mes)
+    
+    df_meses = pd.DataFrame({'Mes': nomes_meses, 'Qtd_dias': qtd_dias})
+
+    df_dias_nao_conciliados = df_conciliacao.copy()
+    df_dias_nao_conciliados = df_dias_nao_conciliados[df_dias_nao_conciliados['Conciliação'] != 0.0]
+    df_dias_nao_conciliados['Data'] = df_dias_nao_conciliados['Data'].dt.month
+    qtd_dias_conciliados_mes = df_dias_nao_conciliados.groupby(['Data'])['Conciliação'].count().reset_index()
+    st.write(df_dias_nao_conciliados)
+    st.write(qtd_dias_conciliados_mes)
+
+
+
+    
 
