@@ -5,7 +5,7 @@ from utils.functions.ajustes import *
 from utils.queries import *
 from streamlit_echarts import st_echarts
 from datetime import datetime
-from decimal import Decimal
+# from decimal import Decimal
 
 
 st.set_page_config(
