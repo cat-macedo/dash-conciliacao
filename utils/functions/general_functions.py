@@ -21,7 +21,7 @@ def config_sidebar():
         st.title("Menu")
         st.page_link("pages/Conciliações.py", label="💰 Conciliações")
         st.page_link("pages/Ajustes.py", label="  ↳ ⚖️ Ajustes")
-        # st.page_link("pages/Farol_de_Conciliação.py", label="  ↳ 🚦 Farol de Conciliação")
+        st.page_link("pages/Farol_de_Conciliação.py", label="  ↳ 🚦 Farol de Conciliação")
         st.write("")
         st.page_link("pages/Fluxo_de_Caixa.py", label="📊 Fluxo de Caixa")
         st.write("")
