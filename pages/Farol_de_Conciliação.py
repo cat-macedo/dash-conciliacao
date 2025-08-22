@@ -4,6 +4,7 @@ from datetime import datetime
 import calendar
 from utils.functions.general_functions import *
 from utils.functions.conciliacoes import *
+from utils.functions.farol_conciliacao import *
 from utils.queries import *
 from workalendar.america import Brazil
 
@@ -28,21 +29,10 @@ st.divider()
 # Filtrando por casa e ano
 col1, col2 = st.columns(2)
 
-# Seletor de casa
-# with col1: 
-#     df_casas = st.session_state["df_casas"]
-#     casas = df_casas['Casa'].tolist()
-
-#     casas = ["Todas as casas" if c == "All bar" else c for c in casas]
-#     casa_farol = st.selectbox("Selecione uma casa:", casas)
-#     if casa_farol == "Todas as casas":
-#         casa_farol = "All bar"
-
-# # Definindo um dicionário para mapear nomes de casas a IDs de casas
-# mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-
-# # Obtendo o ID da casa selecionada
-# id_casa_farol = mapeamento_casas[casa_farol]
+# Seletor de mês
+with col1: 
+    meses = ['Todos os meses', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    mes_farol = st.selectbox("Selecione um mês:", meses)
 
 # Seletor de ano
 with col2:
@@ -53,7 +43,7 @@ with col2:
 
 st.divider()
 
-# Conciliação completa (2024 a 2025)
+# Conciliação completa (2024 -- atual)
 today = datetime.now()
 last_year = today.year - 1
 jan_last_year = datetime(last_year, 1, 1)
@@ -96,7 +86,7 @@ for i in range(1, 13):
 
 df_meses = pd.DataFrame({'Mes': meses, 'Qtd_dias': qtd_dias})
 
-# Falta outras casas
+
 lista_conciliacao_arcos = dias_nao_conciliados_casa(df_conciliacao_arcos, ano_farol, df_meses, mes_atual)
 lista_conciliacao_b_centro = dias_nao_conciliados_casa(df_conciliacao_b_centro, ano_farol, df_meses, mes_atual)
 lista_conciliacao_b_granja = dias_nao_conciliados_casa(df_conciliacao_b_granja, ano_farol, df_meses, mes_atual)
@@ -118,275 +108,33 @@ lista_conciliacao_sanduiche = dias_nao_conciliados_casa(df_conciliacao_sanduiche
 lista_conciliacao_tempus = dias_nao_conciliados_casa(df_conciliacao_tempus, ano_farol, df_meses, mes_atual)
 lista_conciliacao_ultra = dias_nao_conciliados_casa(df_conciliacao_ultra, ano_farol, df_meses, mes_atual)
 
+lista_casas = [
+    lista_conciliacao_arcos,
+    lista_conciliacao_b_centro,
+    lista_conciliacao_b_granja,
+    lista_conciliacao_b_paulista,
+    lista_conciliacao_leo_centro,
+    lista_conciliacao_leo_vila,
+    lista_conciliacao_blue_note,
+    lista_conciliacao_blue_note_novo,
+    lista_conciliacao_rolim,
+    lista_conciliacao_fb,
+    lista_conciliacao_girondino,
+    lista_conciliacao_girondino_ccbb,
+    lista_conciliacao_jacare,
+    lista_conciliacao_love,
+    lista_conciliacao_orfeu,
+    lista_conciliacao_priceless,
+    lista_conciliacao_riviera,
+    lista_conciliacao_sanduiche,
+    lista_conciliacao_tempus,
+    lista_conciliacao_ultra
+]
 
-grafico_dias_conciliados = {
-    # "title": {
-    #   "text": "Valor total de ajustes por mês"   
-    # },
-    "tooltip": {
-        "trigger": 'axis',
-        "axisPointer": {
-        "type": 'shadow'
-        }
-    },
-    "legend": {
-    "data": casas_validas,
-    "type": "scroll", 
-    "bottom": 0
-    },
-    "grid": {
-        "left": "4%",
-        "right": "4%",
-        "bottom": "10%",
-        # "top": "10%",
-        "containLabel": True
-    },
-    "xAxis": [
-        {
-        "type": 'category',
-        "axisTick": { "show": True },
-        "data": nomes_meses
-        }
-    ],
-    "yAxis": [
-        {
-        "type": 'value',
-        "min": 0,
-        "max": 100,
-        "interval": 20,
-        "axisLabel": {
-        "formatter": '{value} %'
-        }
-        } 
-    ],
-    "series": [
-        {
-        "name": 'Arcos',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_arcos,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Bar Brahma - Centro',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_b_centro,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Bar Brahma - Granja',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_b_granja,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Bar Brahma Paulista',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_b_paulista,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Bar Léo - Centro',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_leo_centro,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Bar Léo - Vila Madalena',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_leo_vila,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Blue Note - São Paulo',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_blue_note,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Blue Note SP (Novo)',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_blue_note_novo,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Edificio Rolim',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_rolim,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Escritório Fabrica de Bares',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_fb,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Girondino',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_girondino,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Girondino - CCBB',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_girondino_ccbb,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Jacaré',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_jacare,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Love Cabaret',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_love,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Orfeu',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_orfeu,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Priceless',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_priceless,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Riviera Bar',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_riviera,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Sanduiche comunicação LTDA',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_sanduiche,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Tempus Fugit  Ltda',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_tempus,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },
-        {
-        "name": 'Ultra Evil Premium Ltda',
-        "type": 'bar',
-        # "barWidth": "50%",
-        "barGap": "10%",
-        "data": lista_conciliacao_ultra,
-        # "label": {
-        #     "show": True,
-        #     "position": "top",
-        # }
-        },   
-              
-    ]
-}
-
+# Exibe gráficos
 with st.container(border=True):
-    st.subheader("% Dias conciliados por casa e mês")
-    st_echarts(options=grafico_dias_conciliados, height="600px", width="100%")
-
+    st.subheader("% Dias não conciliados por casa e mês")
+    grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas)    
+    
 st.divider()
 

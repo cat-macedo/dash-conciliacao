@@ -36,7 +36,10 @@ with col1:
   casas = ["Todas as casas" if c == "All bar" else c for c in casas]
   casa = st.selectbox("Selecione uma casa:", casas)
   if casa == "Todas as casas":
+    nome_casa = "Todas as casas"
     casa = "All bar"
+  else:
+     nome_casa = casa
 
   # Definindo um dicionário para mapear nomes de casas a IDs de casas
   mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
@@ -66,12 +69,12 @@ with st.container(border=True):
     col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
     with col2:
       # Exibe primeiro gráfico
-      st.subheader("Valor total de ajustes por mês")
+      st.subheader(f"Valor total de ajustes por mês - {nome_casa}")
       grafico_total_ajustes(df_ajustes_filtrado, lista_total_ajustes_mes_fmt)
       st.divider()
 
       # Exibe segundo gráfico
-      st.subheader("Quantidade de ajustes por mês")
+      st.subheader(f"Quantidade de ajustes por mês - {nome_casa}")
       grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes)
   
 
