@@ -78,8 +78,7 @@ with st.container(border=True):
       grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes)
   
 
-      
-
-
+df_total_ajustes_arcos, df_qtd_ajustes_arcos = df_ajustes_casa("Arcos", ano)
+st.write(df_total_ajustes_arcos, df_qtd_ajustes_arcos)
 
 	

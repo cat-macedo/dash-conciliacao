@@ -110,8 +110,8 @@ def grafico_pizza_cont_categ(categ1, categ2, categ3, categ4, categ5, categ6):
     st_echarts(options=grafico_contagem_categ, height="300px")
 
 
+# Gráfico: valor total de ajustes por mês
 def grafico_total_ajustes(df_ajustes_filtrado, lista_total_ajustes_mes_fmt):
-    # Gráfico: valor total de ajustes por mês
     grafico_total_ajustes = {
         # "title": {
         #   "text": "Valor total de ajustes por mês"   
@@ -195,8 +195,8 @@ def grafico_total_ajustes(df_ajustes_filtrado, lista_total_ajustes_mes_fmt):
     #      st.dataframe(df_ajustes_final, use_container_width=True, hide_index=True)
 
 
+# Gráfico: quantidade de ajustes por mês
 def grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes):
-    # Gráfico: quantidade de ajustes por mês
     grafico_qtd_ajustes = {
         # "title": {
         #   "text": "Quantidade de ajustes por mês"
@@ -295,3 +295,13 @@ def grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes):
         st.subheader("Contagem de categorias")
         grafico_categorias = grafico_pizza_cont_categ(df_contagem_categ1, df_contagem_categ2, df_contagem_categ3, df_contagem_categ4, df_contagem_categ5, df_contagem_categ6)
         
+
+def df_ajustes_casa(casa, ano):
+    df_ajustes = st.session_state["df_ajustes_conciliacao"]
+    df_ajustes_casa = df_ajustes[(df_ajustes['Casa'] == casa) & (df_ajustes['Data_Ajuste'].dt.year == ano)]
+    df_ajustes_casa['Mes'] = df_ajustes_casa['Data_Ajuste'].dt.month
+
+    df_total_ajustes_mes = df_ajustes_casa.groupby(['Mes'])['Valor'].sum().reset_index()
+    df_qtd_ajustes_mes = df_ajustes_casa.groupby(['Mes'])['Valor'].count().reset_index()
+
+    return df_total_ajustes_mes, df_qtd_ajustes_mes

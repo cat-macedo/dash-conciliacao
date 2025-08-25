@@ -198,13 +198,15 @@ lista_casas_trim = [
 
 # Exibe gráficos
 with st.container(border=True):
-    st.subheader(f"% Dias não conciliados - {mes_farol}")
-    if mes_farol == 'Todos os meses':
-        grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas_mes)  
-    elif mes_farol == '1º Trimestre' or mes_farol == '2º Trimestre' or mes_farol == '3º Trimestre' or mes_farol == '4º Trimestre':
-        grafico_dias_nao_conciliados_trim(casas_validas, mes_farol, lista_casas_trim)
-    else:   
-        grafico_dias_nao_conciliados_mes(casas_validas, lista_casas_mes, mes_farol, df_conciliacao_farol, ano_farol, datas_completas)
+    col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
+    with col2:
+        st.subheader(f"% Dias não conciliados - {mes_farol}")
+        if mes_farol == 'Todos os meses':
+            grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas_mes)  
+        elif mes_farol == '1º Trimestre' or mes_farol == '2º Trimestre' or mes_farol == '3º Trimestre' or mes_farol == '4º Trimestre':
+            grafico_dias_nao_conciliados_trim(casas_validas, mes_farol, lista_casas_trim)
+        else:   
+            grafico_dias_nao_conciliados_mes(casas_validas, lista_casas_mes, mes_farol, df_conciliacao_farol, ano_farol, datas_completas)
 
 
 
