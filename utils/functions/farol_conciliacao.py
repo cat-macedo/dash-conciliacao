@@ -7,9 +7,17 @@ from utils.functions.farol_conciliacao import *
 from utils.queries import *
 
 nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+ano_atual = datetime.now().year
+
+cores = [
+    "#582310", "#DF2526", "#84161f", "#1C6EBA", "#E9A700", "#FF8800", "#081F5C", "#004080",
+    "#336699", "#6699CC", "#4A5129", "#8CA706", "#0CA22E", "#E799BB", "#006E77", "#000000",
+    "#C2185B", "#FF6600", "#9933CC", "#330099"
+    ]
+
 
 # Calcula porcentagem de dias conciliados/não conciliados por mês de cada casa
-def dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
+def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     df_dias_nao_conciliados = df_casa[df_casa['Data'].dt.year == ano_farol]
     df_dias_nao_conciliados = df_dias_nao_conciliados[df_dias_nao_conciliados['Conciliação'] != 0.0]
     df_dias_nao_conciliados['Data'] = df_dias_nao_conciliados['Data'].dt.month # Mês dos dias não conciliados
@@ -17,7 +25,7 @@ def dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     # Contagem de dias não conciliados por mês
     df_qtd_dias_nao_conciliados_mes = df_dias_nao_conciliados.groupby(['Data'])['Conciliação'].count().reset_index()
     df_qtd_dias_nao_conciliados_mes = df_qtd_dias_nao_conciliados_mes.merge(df_meses, left_on='Data', right_on='Mes', how='right')
-    
+
     # Porcentagem de dias não conciliados por mês 
     df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Conciliação'] / df_qtd_dias_nao_conciliados_mes['Qtd_dias']
     df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Porcentagem'].fillna(0) # Preenche meses None com zero (tem todos os dias conciliados ou meses depois do atual)
@@ -25,49 +33,138 @@ def dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     # Lista com meses (0-11) e a porcentagem de dias não conciliados
     porc_dias_nao_conciliados = df_qtd_dias_nao_conciliados_mes['Porcentagem'].tolist()
 
-    # Lista com meses (0-11) e a porcentagem de dias conciliados 
+    # Lista com meses (0-11) e a porcentagem de dias não conciliados 
     lista_dias_nao_conciliados = []
     for i, dia in enumerate(porc_dias_nao_conciliados):
         if i <= mes_atual - 1:
-            dia = round((dia * 100), 2)  # 2 casas decimais
-        else:
+            dia =dia * 100  # 2 casas decimais
+        elif i > mes_atual - 1 & ano_farol == ano_atual:
             dia = 0 # meses depois do atual: 0 conciliação
+        dia = round(dia, 2)
         lista_dias_nao_conciliados.append(dia)
 
     #st.write(df_dias_nao_conciliados) # vou precisar
-    #st.write(df_qtd_dias_nao_conciliados_mes)
 
-    # Criar uma lista de dicionários com os valores e a cor para cada barra (preenche o gráfico)
-    # dados_barras_com_cor = []
-    # for valor in lista_dias_conciliados:
-    #     cor = '#008000' if valor == 100 else '#F1C61A'
-    #     dados_barras_com_cor.append({
-    #         "value": valor,
-    #         "itemStyle": {
-    #             "color": cor
-    #         }
-    #     })
     # lista_dias_nao_conciliados = [v if v != 0 else None for v in lista_dias_nao_conciliados]  # None não é plotado
     return lista_dias_nao_conciliados
 
 
-# Gráfico exibido ao clicar num mês 
-def grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, nome_mes, mes_selecionado):
+# Cria tabela com dias não conciliados da casa
+def dias_nao_conciliados_casa(df_conciliacao_farol, casa_selecionada, mes_selecionado, ano_farol, datas_completas):
+    # Gera tabela de conciliação da casa
+    df_conciliacao_casa = conciliacao_casa(df_conciliacao_farol, casa_selecionada, datas_completas) 
+
+    # Filtra por ano do farol e mês
+    df_dias_nao_conciliados_casa = df_conciliacao_casa[
+    (df_conciliacao_casa['Data'].dt.year == ano_farol) &
+    (df_conciliacao_casa['Data'].dt.month == (mes_selecionado + 1))
+    ]
+    
+    # Filtra por dias com conciliação != 0
+    df_dias_nao_conciliados_casa = df_dias_nao_conciliados_casa[df_dias_nao_conciliados_casa['Conciliação'] != 0.0]
+    qtd_dias_nao_conciliados = df_dias_nao_conciliados_casa['Conciliação'].count()
+    return df_dias_nao_conciliados_casa, qtd_dias_nao_conciliados
+
+
+# Gráfico com todos os meses e todas as casas
+def grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas):
+    series = [
+        {
+            "name": nome,
+            "type": "bar",
+            "barGap": "10%",
+            "data": lista_casas[i],
+            "itemStyle": {"color": cores[i]}
+        }
+        for i, nome in enumerate(casas_validas)
+    ]
+
+    grafico_dias_nao_conciliados = {
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+        "legend": {
+            "data": casas_validas,
+            "orient": "vertical",   # legenda em coluna
+            "right": "0%",        
+            "top": "center",
+            "backgroundColor": "#ffffff55",
+        },
+        "grid": {
+            "left": "2%", 
+            "right": "18%", 
+            # "bottom": "10%", 
+            "containLabel": True},
+        "xAxis": [{
+            "type": "category", 
+            "axisTick": {"show": True}, 
+            "data": nomes_meses}],
+        "yAxis": [
+            {
+            "type": "value", 
+            # "min": 0,
+            # "max": 50,
+            # "interval": 10,
+            "axisLabel": {"formatter": "{value} %"}
+            }
+        ],
+        "series": series
+    }
+
+    # Evento de clique - abre o mês
+    # events = {
+    #     "click": "function(params) { return params.name; }"
+    # }
+    
+    # mes_selecionado = st_echarts(options=grafico_dias_nao_conciliados, events=events, height="600px", width="100%")
+    st_echarts(options=grafico_dias_nao_conciliados, height="600px", width="100%")
+    
+    # if not mes_selecionado:
+    #     st.warning("Selecione um mês para melhor visualização")
+    # else: 
+    #     # Exibe gráfico do mês selecionado
+    #     meses = {
+    #         "Jan": "Janeiro",
+    #         "Fev": "Fevereiro",
+    #         "Mar": "Março",
+    #         "Abr": "Abril",
+    #         "Mai": "Maio",
+    #         "Jun": "Junho",
+    #         "Jul": "Julho",
+    #         "Ago": "Agosto",
+    #         "Set": "Setembro",
+    #         "Out": "Outubro",
+    #         "Nov": "Novembro",
+    #         "Dez": "Dezembro"
+    #         }
+        
+    #     nome_mes = meses[mes_selecionado]
+
+    #     for mes in nomes_meses:
+    #         if mes_selecionado == mes:
+    #             mes_selecionado = nomes_meses.index(mes)
+        
+    #     st.divider()
+    #     st.subheader(f"% Dias não conciliados por casa - {nome_mes}")
+    #     grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, nome_mes, mes_selecionado)
+
+
+# Gráfico exibido ao selecionar num mês 
+def grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, mes_selecionado, df_conciliacao_farol, ano_farol, datas_completas):
     for i, casa in enumerate(lista_casas):
         for j, valor in enumerate(casa):
             if valor is None:
                 lista_casas[i][j] = 0
 
+    nomes_meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    for mes in nomes_meses:
+        if mes_selecionado == mes:
+            nome_mes = mes
+            mes_selecionado = nomes_meses.index(mes)
+
     lista_mes = []
     for casa in lista_casas:
         lista_mes.append(casa[mes_selecionado])
     
-    cores = [
-    "#582310", "#DF2526", "#84161f", "#1C6EBA", "#E9A700", "#FF8800", "#081F5C", "#004080",
-    "#336699", "#6699CC", "#4A5129", "#8CA706", "#0CA22E", "#E799BB", "#006E77", "#000000",
-    "#C2185B", "#FF6600", "#9933CC", "#330099"
-    ]
-    
+    # Define as séries (barras) do eixo x (uma para cada casa)
     series = [
         {
             "name": nome,
@@ -87,83 +184,127 @@ def grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, nome_mes, mes_s
     ]
 
     grafico_dias_nao_conciliados_mes = {
-        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-        "legend": {"data": casas_validas, "type": "scroll", "bottom": 0},
-        "grid": {"left": "4%", "right": "4%", "bottom": "10%", "containLabel": True},
+        "tooltip": {
+            "trigger": "axis", 
+            "axisPointer": {"type": "shadow"}},
+        "legend": {
+            "data": casas_validas,
+            "orient": "vertical",   # legenda em coluna
+            "right": "0%",        
+            "top": "center",
+            "backgroundColor": "#ffffff55",
+        },
+        "grid": {
+            "left": "2%", 
+            "right": "18%", 
+            # "bottom": "10%", 
+            "containLabel": True
+        },
         "xAxis": {
             "type": 'category',
             "data": [nome_mes]
         },
         "yAxis": {
-            "type": 'value'
+            "type": 'value',
+            "axisLabel": {"formatter": "{value} %"}
         },
-        "series": series
-    }
-
-    st_echarts(options=grafico_dias_nao_conciliados_mes, height="600px", width="100%")
-
-
-# Gráfico com todos os meses e todas as casas
-def grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas):
-    cores = [
-    "#582310", "#DF2526", "#84161f", "#1C6EBA", "#E9A700", "#FF8800", "#081F5C", "#004080",
-    "#336699", "#6699CC", "#4A5129", "#8CA706", "#0CA22E", "#E799BB", "#006E77", "#000000",
-    "#C2185B", "#FF6600", "#9933CC", "#330099"
-    ]
-
-    series = [
-        {
-            "name": nome,
-            "type": "bar",
-            "barGap": "10%",
-            "data": lista_casas[i],
-            "itemStyle": {"color": cores[i]}
-        }
-        for i, nome in enumerate(casas_validas)
-    ]
-
-    grafico_dias_nao_conciliados = {
-        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-        "legend": {"data": casas_validas, "type": "scroll", "bottom": 0},
-        "grid": {"left": "4%", "right": "4%", "bottom": "10%", "containLabel": True},
-        "xAxis": [{"type": "category", "axisTick": {"show": True}, "data": nomes_meses}],
-        "yAxis": [{"type": "value", "min": 0, "max": 50, "interval": 10, "axisLabel": {"formatter": "{value} %"}}],
         "series": series
     }
 
     # Evento de clique - abre o mês
     events = {
-        "click": "function(params) { return params.name; }"
+        "click": "function(params) { return params.seriesName; }"
     }
     
-    mes_selecionado = st_echarts(options=grafico_dias_nao_conciliados, events=events, height="600px", width="100%")
-    
-    if not mes_selecionado:
-        st.warning("Selecione um mês para melhor visualização")
-    else: 
-        # Exibe gráfico do mês selecionado
-        meses = {
-            "Jan": "Janeiro",
-            "Fev": "Fevereiro",
-            "Mar": "Março",
-            "Abr": "Abril",
-            "Mai": "Maio",
-            "Jun": "Junho",
-            "Jul": "Julho",
-            "Ago": "Agosto",
-            "Set": "Setembro",
-            "Out": "Outubro",
-            "Nov": "Novembro",
-            "Dez": "Dezembro"
-            }
-        
-        nome_mes = meses[mes_selecionado]
+    casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_mes, events=events, height="600px", width="100%")
 
-        for mes in nomes_meses:
-            if mes_selecionado == mes:
-                mes_selecionado = nomes_meses.index(mes)
-        
+    if not casa_selecionada:
+        st.warning("Selecione uma casa para visualizar os dias não conciliados")
+    else:
         st.divider()
-        st.subheader(f"% Dias não conciliados por casa - {nome_mes}")
-        grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, nome_mes, mes_selecionado)
+        st.subheader(f"Dias não conciliados - {casa_selecionada}")
+        df_dias_nao_conciliados_casa, qtd_dias_nao_conciliados = dias_nao_conciliados_casa(df_conciliacao_farol, casa_selecionada, mes_selecionado, ano_farol, datas_completas)
+        df_dias_nao_conciliados_casa_fmt = formata_df(df_dias_nao_conciliados_casa)
+        st.dataframe(df_dias_nao_conciliados_casa_fmt, hide_index=True)
+        st.write(f'**Quantidade de dias não conciliados:** {qtd_dias_nao_conciliados}')
 
+
+# Cálculos por trimestre
+def lista_dias_nao_conciliados_casa_trim(df_casa, ano_farol, df_trimestres, trim_selecionado):
+    df_dias_nao_conciliados = df_casa[df_casa['Data'].dt.year == ano_farol]
+    df_dias_nao_conciliados = df_dias_nao_conciliados[df_dias_nao_conciliados['Conciliação'] != 0.0]
+    df_dias_nao_conciliados['Mes'] = df_dias_nao_conciliados['Data'].dt.month # Mês dos dias não conciliados
+
+    # Contagem de dias não conciliados por mês
+    df_dias_nao_conciliados_trim = df_dias_nao_conciliados.merge(df_trimestres, left_on='Mes', right_on='Mes', how='right')
+    
+    # Porcentagem de dias não conciliados por trimestre
+    df_qtd_dias_nao_conciliados_trim = df_dias_nao_conciliados_trim.groupby(['Trimestre'])['Conciliação'].count().reset_index()
+    df_qtd_dias_nao_conciliados_trim = df_qtd_dias_nao_conciliados_trim.merge(df_trimestres, right_on='Trimestre', left_on='Trimestre', how='left')
+    df_unico_por_trimestre = df_qtd_dias_nao_conciliados_trim.drop_duplicates(subset=['Trimestre'], keep='first').copy()
+    df_unico_por_trimestre['Porcentagem'] = (df_unico_por_trimestre['Conciliação'] / df_unico_por_trimestre['Qtd_dias_y']) 
+    
+    porc_dias_nao_conciliados_trim = df_unico_por_trimestre['Porcentagem'].tolist()
+
+    # Lista com trimestres (0-3) e a porcentagem de dias não conciliados 
+    lista_dias_nao_conciliados_trim = []
+    for i in porc_dias_nao_conciliados_trim:
+        i = round((i*100), 2)
+        lista_dias_nao_conciliados_trim.append(i)
+
+    if trim_selecionado == '1º Trimestre':
+        return lista_dias_nao_conciliados_trim[0] 
+    elif trim_selecionado == '2º Trimestre':
+        return lista_dias_nao_conciliados_trim[1]
+    elif trim_selecionado == '3º Trimestre':
+        return lista_dias_nao_conciliados_trim[2]
+    elif trim_selecionado == '4º Trimestre':
+        return lista_dias_nao_conciliados_trim[3]
+
+
+# Gráfico de dias não conciliados por casa e trimestre
+def grafico_dias_nao_conciliados_trim(casas_validas, trimestre, lista_casas_trim):
+    series = [
+        {
+            "name": nome,
+            "type": "bar",
+            "barGap": "10%",
+            "data": [lista_casas_trim[i]],
+            "label": {
+                "show": True,
+                "position": "top" 
+            },
+            "itemStyle": {"color": cores[i]}
+        }
+        for i, nome in enumerate(casas_validas)
+    ]
+
+    grafico_dias_nao_conciliados_trim = {
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+        "legend": {
+            "data": casas_validas,
+            "orient": "vertical",   # legenda em coluna
+            "right": "0%",        
+            "top": "center",
+            "backgroundColor": "#ffffff55",
+        },
+        "grid": {
+            "left": "2%", 
+            "right": "18%", 
+            # "bottom": "10%", 
+            "containLabel": True},
+        "xAxis": [{
+            "type": "category", 
+            "axisTick": {"show": True}, 
+            "data": [trimestre]}],
+        "yAxis": [
+            {
+            "type": "value", 
+            "axisLabel": {"formatter": "{value} %"}
+            }
+        ],
+        "series": series
+    }
+
+    st_echarts(options=grafico_dias_nao_conciliados_trim, height="600px", width="100%")
+    
