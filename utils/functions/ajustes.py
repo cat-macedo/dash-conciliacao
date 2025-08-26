@@ -9,8 +9,14 @@ from streamlit_echarts import st_echarts
 
 nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
+cores_casas = [
+    "#582310", "#DF2526", "#84161f", "#1C6EBA", "#E9A700", "#FF8800", "#081F5C", "#004080",
+    "#336699", "#6699CC", "#4A5129", "#8CA706", "#0CA22E", "#E799BB", "#006E77", "#000000",
+    "#C2185B", "#FF6600", "#9933CC", "#330099"
+    ]
 
-# Filtra tabela de ajustes por casa e ano
+
+# Filtra tabela de ajustes por casa e ano (de acordo com os seletores)
 def define_df_ajustes(id_casa, ano):
     df_ajustes = st.session_state["df_ajustes_conciliacao"]
     if id_casa != 157:
@@ -27,14 +33,21 @@ def total_ajustes_mes(df_ajustes_filtrado):
     df_ajustes_filtrado_copia = df_ajustes_filtrado.copy()
     df_ajustes_filtrado_copia['Mes'] = df_ajustes_filtrado_copia['Data_Ajuste'].dt.month
 
-    total_ajustes_mes = df_ajustes_filtrado_copia.groupby(['Mes'])['Valor'].sum().reset_index()
-    lista_total_ajustes_mes = total_ajustes_mes['Valor'].tolist()
-    lista_total_ajustes_mes = [float(valor) if isinstance(valor, Decimal) else valor for valor in lista_total_ajustes_mes]
+    # Ajustes positivos
+    ajustes_pos = df_ajustes_filtrado_copia[df_ajustes_filtrado_copia['Valor'] > 0].groupby(['Mes'])['Valor'].sum().reindex(range(1, 13), fill_value=0).reset_index()
+    lista_ajustes_pos_mes = ajustes_pos['Valor'].tolist()
+    lista_ajustes_pos_mes = [float(valor) if isinstance(valor, Decimal) else valor for valor in lista_ajustes_pos_mes]
     
-    # Valor total de ajustes por mês
-    lista_total_ajustes_mes_fmt = valores_labels_formatados(lista_total_ajustes_mes) 
+    # Ajustes negativos
+    ajustes_neg = df_ajustes_filtrado_copia[df_ajustes_filtrado_copia['Valor'] < 0].groupby(['Mes'])['Valor'].sum().reindex(range(1, 13), fill_value=0).reset_index()
+    lista_ajustes_neg_mes = ajustes_neg['Valor'].tolist()
+    lista_ajustes_neg_mes = [float(valor) if isinstance(valor, Decimal) else valor for valor in lista_ajustes_neg_mes]
 
-    return lista_total_ajustes_mes_fmt
+    # Lista com valor total de ajustes por mês (uma de positivos, outra de negativos)
+    lista_ajustes_pos_mes_fmt = valores_labels_formatados(lista_ajustes_pos_mes) 
+    lista_ajustes_neg_mes_fmt = valores_labels_formatados(lista_ajustes_neg_mes)
+
+    return lista_ajustes_pos_mes_fmt, lista_ajustes_neg_mes_fmt
 
 
 def qtd_ajustes_mes(df_ajustes_filtrado):
@@ -49,17 +62,75 @@ def qtd_ajustes_mes(df_ajustes_filtrado):
     ajustes_mes = df_ajustes_filtrado_copia.groupby(['Mes'])['Casa'].count().reset_index()
     ajustes_mes.rename(columns = {'Casa':'Qtd_Ajustes'}, inplace=True)
 
-    # Qtd de ajustes por mês
+    # Lista com qtd de ajustes por mês
     lista_qtd_ajustes_mes = ajustes_mes['Qtd_Ajustes'].tolist() 
     return lista_qtd_ajustes_mes
 
 
+# Contabiliza cada categoria de ajuste para gráfico de pizza - exibido ao clicar no gráfico de valor total por mês
 def contagem_categorias(df, categoria):
     df_copia = df.copy()
     contagem = int((df_copia['Categoria'] == categoria).sum())
     return contagem
 
 
+# Função auxiliar para gráfico com todas as casas
+def lista_ajustes_casa(casa, ano):
+    df_ajustes = st.session_state["df_ajustes_conciliacao"]
+    df_ajustes_casa = df_ajustes[(df_ajustes['Casa'] == casa) & (df_ajustes['Data_Ajuste'].dt.year == ano)]
+    df_ajustes_casa['Mes'] = df_ajustes_casa['Data_Ajuste'].dt.month
+
+    # df_total_ajustes_mes = df_ajustes_casa.groupby(['Mes'])['Valor'].sum().reset_index()
+
+    # Quantidade de ajustes por mês de cada casa
+    df_qtd_ajustes_mes = df_ajustes_casa.groupby(['Mes'])['Valor'].count().reindex(range(1, 13), fill_value=0).reset_index()
+    lista_qtd_ajustes_mes = df_qtd_ajustes_mes['Valor'].tolist()
+
+    return lista_qtd_ajustes_mes
+
+
+# Primeiro gráfico: com todos os meses e todas as casas
+def grafico_ajustes_todas_casas(casas_validas, nomes_meses, lista_ajustes_casas):
+    series = [
+        {
+            "name": nome,
+            "type": "bar",
+            "barGap": "10%",
+            "data": lista_ajustes_casas[i],
+            "itemStyle": {"color": cores_casas[i]}
+        }
+        for i, nome in enumerate(casas_validas)
+    ]
+
+    grafico_ajustes_todas_casas = {
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+        "legend": {
+            "data": casas_validas,
+            "orient": "vertical",   # legenda em coluna
+            "right": "0%",        
+            "top": "center",
+            "backgroundColor": "#ffffff55",
+        },
+        "grid": {
+            "left": "2%", 
+            "right": "18%",  
+            "containLabel": True},
+        "xAxis": [{
+            "type": "category", 
+            "axisTick": {"show": True}, 
+            "data": nomes_meses}],
+        "yAxis": [
+            {
+            "type": "value", 
+            }
+        ],
+        "series": series
+    }
+
+    st_echarts(options=grafico_ajustes_todas_casas, height="600px", width="100%")
+
+
+# Gráfico de pizza: exibido ao clicar no gráfico de contagem por mês
 def grafico_pizza_cont_categ(categ1, categ2, categ3, categ4, categ5, categ6):
     grafico_contagem_categ = {
         "tooltip": {
@@ -67,7 +138,7 @@ def grafico_pizza_cont_categ(categ1, categ2, categ3, categ4, categ5, categ6):
         },
         "legend": {
             "orient": "vertical",   # legenda em coluna
-            "left": "0%",        # pode ser "left", "right" ou número em px
+            "left": "0%",        
             "top": "center"
         },
         "series": [
@@ -110,97 +181,9 @@ def grafico_pizza_cont_categ(categ1, categ2, categ3, categ4, categ5, categ6):
     st_echarts(options=grafico_contagem_categ, height="300px")
 
 
-# Gráfico: valor total de ajustes por mês
-def grafico_total_ajustes(df_ajustes_filtrado, lista_total_ajustes_mes_fmt):
-    grafico_total_ajustes = {
-        # "title": {
-        #   "text": "Valor total de ajustes por mês"   
-        # },
-        "tooltip": {
-            "trigger": 'axis',
-            "axisPointer": {
-            "type": 'shadow'
-            }
-        },
-        "grid": {
-            "left": "4%",
-            "right": "4%",
-            "bottom": "0%",
-            "containLabel": True
-        },
-        "xAxis": [
-            {
-            "type": 'category',
-            "axisTick": { "show": False },
-            "data": nomes_meses
-            }
-        ],
-        "yAxis": [
-            {
-            "type": 'value'
-            }
-        ],
-        "series": [
-            {
-            "name": 'Total de Ajustes',
-            "type": 'bar',
-            "barWidth": "50%",
-            "barGap": "5%",
-            "data": lista_total_ajustes_mes_fmt,
-            "itemStyle": {
-                "color": "#F1C61A"
-            },
-            "label": {
-                "show": True,
-                "position": "top",
-            }
-            }
-        ]
-    }
-
-    # Evento de clique - abre tabela de ajustes detalhada
-    events = {
-        "click": "function(params) { return params.name; }"
-    }
-
-    # Exibe o gráfico
-    mes_selecionado = st_echarts(options=grafico_total_ajustes, events=events, height="320px", width="100%")
-    
-    # if mes_selecionado:
-    #     st.divider()
-    #     meses = {
-    #     "Jan": "Janeiro",
-    #     "Fev": "Fevereiro",
-    #     "Mar": "Março",
-    #     "Abr": "Abril",
-    #     "Mai": "Maio",
-    #     "Jun": "Junho",
-    #     "Jul": "Julho",
-    #     "Ago": "Agosto",
-    #     "Set": "Setembro",
-    #     "Out": "Outubro",
-    #     "Nov": "Novembro",
-    #     "Dez": "Dezembro"
-    #     }
-    #     mes = meses[mes_selecionado]
-    #     st.subheader(f"Ajustes - {mes}")
-
-    #     for mes in nomes_meses:
-    #         if mes_selecionado == mes:
-    #             mes_selecionado = nomes_meses.index(mes) + 1
-        
-    #     # Exibe df de ajustes do mês selecionado
-    #     df_ajustes_formatado = df_ajustes_filtrado[df_ajustes_filtrado['Data_Ajuste'].dt.month == mes_selecionado]
-    #     df_ajustes_final = formata_df(df_ajustes_formatado)
-    #      st.dataframe(df_ajustes_final, use_container_width=True, hide_index=True)
-
-
-# Gráfico: quantidade de ajustes por mês
-def grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes):
-    grafico_qtd_ajustes = {
-        # "title": {
-        #   "text": "Quantidade de ajustes por mês"
-        # },
+# Primeiro gráfico: contagem de ajustes por mês
+def grafico_qtd_ajustes_mes(lista_qtd_ajustes_mes):
+    grafico_qtd_ajustes_mes = {
         "tooltip": {
             "trigger": 'axis',
             "axisPointer": {
@@ -243,16 +226,83 @@ def grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes):
         ]
     }
 
-    # Evento de clique - abre tabela de ajustes detalhada
+    # Evento de clique - abre tabela de ajustes detalhada e gráfico de pizza
+    events = {
+        "click": "function(params) { return params.name; }"
+    }
+
+    st_echarts(options=grafico_qtd_ajustes_mes, events=events, height="400px", width="100%")
+
+
+# Segundo gráfico: valor total de ajustes por mês
+def grafico_total_ajustes_mes(df_ajustes_filtrado, lista_ajustes_pos_mes_fmt, lista_ajustes_neg_mes_fmt):
+    grafico_total_ajustes_mes = {
+        "tooltip": {
+            "trigger": 'axis',
+            "axisPointer": {
+            "type": 'shadow'
+            }
+        },
+        "grid": {
+            "left": "4%",
+            "right": "4%",
+            "bottom": "0%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+            "type": 'category',
+            "axisTick": { "show": True },
+            "data": nomes_meses
+            }
+        ],
+        "yAxis": [
+            {
+            "type": 'value'
+            }
+        ],
+        "series": [
+            {
+            "name": 'Total de Ajustes Positivos',
+            "type": 'bar',
+            "barWidth": "40%",
+            "barGap": "5%",
+            "data": lista_ajustes_pos_mes_fmt,
+            "itemStyle": {
+                "color": "#F1C61A"
+            },
+            "label": {
+                "show": True,
+                "position": "left",
+            }
+            },
+            {
+            "name": 'Total de Ajustes Negativos',
+            "type": 'bar',
+            "barWidth": "40%",
+            "barGap": "5%",
+            "data": lista_ajustes_neg_mes_fmt,
+            "itemStyle": {
+                "color": "#F1C61A"
+            },
+            "label": {
+                "show": True,
+                "position": "bottom",
+            }
+            }
+        ]
+    }
+
+    # Evento de clique - abre tabela de ajustes detalhada e gráfico de pizza
     events = {
         "click": "function(params) { return params.name; }"
     }
 
     # Exibe o gráfico
-    mes_selecionado = st_echarts(options=grafico_qtd_ajustes, events=events, height="320px", width="100%")
+    mes_selecionado = st_echarts(options=grafico_total_ajustes_mes, events=events, height="400px", width="100%")
     
     if not mes_selecionado:
-          st.warning("Selecione um mês do gráfico para visualizar os ajustes correspondentes")
+        st.warning("Selecione um mês para visualizar os ajustes correspondentes")
 
     else:
         st.divider()
@@ -270,8 +320,8 @@ def grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes):
         "Nov": "Novembro",
         "Dez": "Dezembro"
         }
-        nome_mes = meses[mes_selecionado]
-        st.subheader(f"Ajustes - {nome_mes}")
+        mes = meses[mes_selecionado]
+        st.subheader(f"Ajustes - {mes}")
 
         for mes in nomes_meses:
             if mes_selecionado == mes:
@@ -294,14 +344,5 @@ def grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes):
 
         st.subheader("Contagem de categorias")
         grafico_categorias = grafico_pizza_cont_categ(df_contagem_categ1, df_contagem_categ2, df_contagem_categ3, df_contagem_categ4, df_contagem_categ5, df_contagem_categ6)
-        
 
-def df_ajustes_casa(casa, ano):
-    df_ajustes = st.session_state["df_ajustes_conciliacao"]
-    df_ajustes_casa = df_ajustes[(df_ajustes['Casa'] == casa) & (df_ajustes['Data_Ajuste'].dt.year == ano)]
-    df_ajustes_casa['Mes'] = df_ajustes_casa['Data_Ajuste'].dt.month
 
-    df_total_ajustes_mes = df_ajustes_casa.groupby(['Mes'])['Valor'].sum().reset_index()
-    df_qtd_ajustes_mes = df_ajustes_casa.groupby(['Mes'])['Valor'].count().reset_index()
-
-    return df_total_ajustes_mes, df_qtd_ajustes_mes

@@ -56,29 +56,85 @@ with col2:
 
 st.divider()
 
-# Define df usados nos gráficos
+# Define df usados nos gráficos individuais de casa (de acordo com casa e data dos seletores)
 df_ajustes_filtrado = define_df_ajustes(id_casa, ano)
-lista_total_ajustes_mes_fmt = total_ajustes_mes(df_ajustes_filtrado)
+lista_ajustes_pos_mes_fmt, lista_ajustes_neg_mes_fmt = total_ajustes_mes(df_ajustes_filtrado)
 lista_qtd_ajustes_mes = qtd_ajustes_mes(df_ajustes_filtrado)
 
 
+# Lista nomes das casas válidas
+casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA', 'Tempus Fugit  Ltda', 'Ultra Evil Premium Ltda']
+
+# Lista de quantidade de ajustes por mês de cada casa
+lista_qtd_ajustes_arcos = lista_ajustes_casa("Arcos", ano)
+lista_qtd_ajustes_b_centro = lista_ajustes_casa("Bar Brahma - Centro", ano)
+lista_qtd_ajustes_b_granja = lista_ajustes_casa("Bar Brahma - Granja", ano)
+lista_qtd_ajustes_b_paulista = lista_ajustes_casa("Bar Brahma Paulista", ano)
+lista_qtd_ajustes_leo_centro = lista_ajustes_casa("Bar Léo - Centro", ano)
+lista_qtd_ajustes_leo_vila = lista_ajustes_casa("Bar Léo - Vila Madalena", ano)
+lista_qtd_ajustes_blue_note = lista_ajustes_casa("Blue Note - São Paulo", ano)
+lista_qtd_ajustes_blue_note_novo = lista_ajustes_casa("Blue Note SP (Novo)", ano)
+lista_qtd_ajustes_rolim = lista_ajustes_casa("Edifício Rolim", ano)
+lista_qtd_ajustes_fb = lista_ajustes_casa("Escritório Fabrica de Bares", ano)
+lista_qtd_ajustes_girondino = lista_ajustes_casa("Girondino ", ano)
+lista_qtd_ajustes_girondino_ccbb = lista_ajustes_casa("Girondino - CCBB", ano)
+lista_qtd_ajustes_jacare = lista_ajustes_casa("Jacaré", ano)
+lista_qtd_ajustes_love = lista_ajustes_casa("Love Cabaret", ano)
+lista_qtd_ajustes_orfeu = lista_ajustes_casa("Orfeu", ano)
+lista_qtd_ajustes_priceless = lista_ajustes_casa("Priceless", ano)
+lista_qtd_ajustes_riviera = lista_ajustes_casa("Riviera Bar", ano)
+lista_qtd_ajustes_sanduiche = lista_ajustes_casa("Sanduiche comunicação LTDA ", ano)
+lista_qtd_ajustes_tempus = lista_ajustes_casa("Tempus Fugit  Ltda ", ano)
+lista_qtd_ajustes_ultra = lista_ajustes_casa("Ultra Evil Premium Ltda ", ano)
+
+
+lista_ajustes_casas = [
+  lista_qtd_ajustes_arcos,
+  lista_qtd_ajustes_b_centro,
+  lista_qtd_ajustes_b_granja,
+  lista_qtd_ajustes_b_paulista,
+  lista_qtd_ajustes_leo_centro,
+  lista_qtd_ajustes_leo_vila,
+  lista_qtd_ajustes_blue_note,
+  lista_qtd_ajustes_blue_note_novo,
+  lista_qtd_ajustes_rolim,
+  lista_qtd_ajustes_fb,
+  lista_qtd_ajustes_girondino,
+  lista_qtd_ajustes_girondino_ccbb,
+  lista_qtd_ajustes_jacare,
+  lista_qtd_ajustes_love,
+  lista_qtd_ajustes_orfeu,
+  lista_qtd_ajustes_priceless,
+  lista_qtd_ajustes_riviera,
+  lista_qtd_ajustes_sanduiche,
+  lista_qtd_ajustes_tempus,
+  lista_qtd_ajustes_ultra
+]
+
+
+# Exibe gráfico de todos os meses e todas as casas
+if nome_casa == 'Todas as casas':
+  with st.container(border=True):
+    col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
+    with col2:
+      st.subheader("Contagem de ajustes por mês e por casa")
+      grafico_ajustes_todas_casas(casas_validas, nomes_meses, lista_ajustes_casas)
+
+
 with st.container(border=True):
-  if len(lista_total_ajustes_mes_fmt) == 0 and all(v == 0 for v in lista_qtd_ajustes_mes):
-    st.warning("Não há ajustes a serem exibidos")
+  if (len(lista_ajustes_pos_mes_fmt) == 0 and len(lista_ajustes_neg_mes_fmt) == 0) and all(v == 0 for v in lista_qtd_ajustes_mes):
+    st.warning(f"Não há ajustes a serem exibidos para {nome_casa}")
   else: 
     col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
     with col2:
-      # Exibe primeiro gráfico
-      st.subheader(f"Valor total de ajustes por mês - {nome_casa}")
-      grafico_total_ajustes(df_ajustes_filtrado, lista_total_ajustes_mes_fmt)
+      # Exibe gráfico da contagem de ajustes por mês
+      st.subheader(f"Contagem total de ajustes por mês - {nome_casa}")
+      grafico_qtd_ajustes_mes(lista_qtd_ajustes_mes)
       st.divider()
 
-      # Exibe segundo gráfico
-      st.subheader(f"Quantidade de ajustes por mês - {nome_casa}")
-      grafico_ajustes_mes(df_ajustes_filtrado, lista_qtd_ajustes_mes)
+      # Exibe gráfico de valor total de ajustes por mês
+      st.subheader(f"Valor total de ajustes por mês - {nome_casa}")
+      grafico_total_ajustes_mes(df_ajustes_filtrado, lista_ajustes_pos_mes_fmt, lista_ajustes_neg_mes_fmt)
+      
   
 
-df_total_ajustes_arcos, df_qtd_ajustes_arcos = df_ajustes_casa("Arcos", ano)
-st.write(df_total_ajustes_arcos, df_qtd_ajustes_arcos)
-
-	

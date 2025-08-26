@@ -110,7 +110,7 @@ def valores_labels_formatados(lista_valores):
             "value": v, 
             "label": {
                 "show": True,
-                "position": "top",
+                "position": "bottom" if v < 0 else "top",  
                 "formatter": lbl
             }
         }

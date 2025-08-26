@@ -204,7 +204,7 @@ with st.container(border=True):
         if mes_farol == 'Todos os meses':
             grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas_mes)  
         elif mes_farol == '1º Trimestre' or mes_farol == '2º Trimestre' or mes_farol == '3º Trimestre' or mes_farol == '4º Trimestre':
-            grafico_dias_nao_conciliados_trim(casas_validas, mes_farol, lista_casas_trim)
+            grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, mes_farol, lista_casas_trim, ano_farol, datas_completas)
         else:   
             grafico_dias_nao_conciliados_mes(casas_validas, lista_casas_mes, mes_farol, df_conciliacao_farol, ano_farol, datas_completas)
 
