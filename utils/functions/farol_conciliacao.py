@@ -34,10 +34,12 @@ def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
 
     lista_dias_nao_conciliados = []
     for i, dia in enumerate(porc_dias_nao_conciliados):
-        if i <= mes_atual - 1:
+        if (i <= mes_atual - 1) and (ano_farol == ano_atual):
             dia = dia * 100  # 2 casas decimais
-        elif i > mes_atual - 1 & ano_farol == ano_atual:
+        elif (i > mes_atual - 1) and (ano_farol == ano_atual):
             dia = 0 # meses depois do atual: 0 conciliação
+        else:
+            dia = dia * 100  # para anos anteriores, sempre multiplica
         dia = round(dia, 2)
         lista_dias_nao_conciliados.append(dia)
 
@@ -89,8 +91,8 @@ def grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas):
         },
         "grid": {
             "left": "2%", 
-            "right": "18%", 
-            # "bottom": "10%", 
+            "right": "23%", 
+            "bottom": "0%", 
             "containLabel": True},
         "xAxis": [{
             "type": "category", 
@@ -166,8 +168,8 @@ def grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, mes_selecionado
         },
         "grid": {
             "left": "2%", 
-            "right": "18%", 
-            # "bottom": "10%", 
+            "right": "23%", 
+            "bottom": "0%", 
             "containLabel": True
         },
         "xAxis": {
@@ -186,7 +188,7 @@ def grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, mes_selecionado
         "click": "function(params) { return params.seriesName; }"
     }
     
-    casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_mes, events=events, height="600px", width="100%")
+    casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_mes, events=events, height="550px", width="100%")
 
     if not casa_selecionada:
         st.warning("Selecione uma casa para visualizar os dias não conciliados")
@@ -304,8 +306,8 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
         },
         "grid": {
             "left": "2%", 
-            "right": "18%", 
-            # "bottom": "10%", 
+            "right": "23%", 
+            "bottom": "0%", 
             "containLabel": True},
         "xAxis": [{
             "type": "category", 
@@ -325,7 +327,7 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
         "click": "function(params) { return params.seriesName; }"
     }
     
-    casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_trim, events=events, height="600px", width="100%")
+    casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_trim, events=events, height="550px", width="100%")
 
     if not casa_selecionada:
         st.warning("Selecione uma casa para visualizar os dias não conciliados")

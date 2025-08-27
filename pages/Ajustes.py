@@ -115,7 +115,7 @@ lista_ajustes_casas = [
 # Exibe gráfico de todos os meses e todas as casas
 if nome_casa == 'Todas as casas':
   with st.container(border=True):
-    col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
+    col1, col2, col3 = st.columns([0.05, 4, 0.05], vertical_alignment="center")
     with col2:
       st.subheader("Contagem de ajustes por mês e por casa")
       grafico_ajustes_todas_casas(casas_validas, nomes_meses, lista_ajustes_casas)

@@ -113,7 +113,7 @@ def grafico_ajustes_todas_casas(casas_validas, nomes_meses, lista_ajustes_casas)
         },
         "grid": {
             "left": "2%", 
-            "right": "18%",  
+            "right": "23%",  
             "containLabel": True},
         "xAxis": [{
             "type": "category", 

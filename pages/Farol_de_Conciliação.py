@@ -198,7 +198,7 @@ lista_casas_trim = [
 
 # Exibe gráficos
 with st.container(border=True):
-    col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
+    col1, col2, col3 = st.columns([0.05, 4, 0.05], vertical_alignment="center")
     with col2:
         st.subheader(f"% Dias não conciliados - {mes_farol}")
         if mes_farol == 'Todos os meses':
