@@ -200,13 +200,71 @@ lista_casas_trim = [
 with st.container(border=True):
     col1, col2, col3 = st.columns([0.05, 4, 0.05], vertical_alignment="center")
     with col2:
-        st.subheader(f"% Dias não conciliados - {mes_farol}")
+        st.subheader(f"Porcentagem (%) dias não conciliados - {mes_farol}")
         if mes_farol == 'Todos os meses':
-            grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas_mes)  
+            grafico_dias_nao_conciliados(casas_validas, nomes_meses, lista_casas_mes) 
         elif mes_farol == '1º Trimestre' or mes_farol == '2º Trimestre' or mes_farol == '3º Trimestre' or mes_farol == '4º Trimestre':
             grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, mes_farol, lista_casas_trim, ano_farol, datas_completas)
         else:   
             grafico_dias_nao_conciliados_mes(casas_validas, lista_casas_mes, mes_farol, df_conciliacao_farol, ano_farol, datas_completas)
+
+
+# Cria e exibe tabela do farol de conciliação
+st.divider()
+df_farol_conciliacao = pd.DataFrame()
+df_farol_conciliacao['Casa'] = casas_validas
+
+# casas_selecionadas = df_farol_conciliacao_editavel.loc[df_farol_conciliacao_editavel['Teste'] == True, 'Casa'].tolist()
+#st.write(casas_selecionadas)
+
+# Função que cria a lista de cada mês da tabela
+df_farol_conciliacao = df_farol_conciliacao_mes(lista_casas_mes, df_farol_conciliacao, ano_farol, mes_atual)
+
+# Converte com estilo aplicado
+df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(estilos_celulas)
+
+#st.table(df_farol_conciliacao)
+st.subheader('Status Conciliação Bancária - Resumo')
+st.error('Falta considerar as diferentes contas bancárias de cada casa')
+st.dataframe(df_farol_conciliacao_estilo, height=740, hide_index=True)
+
+# df_html = df_farol_conciliacao_editavel.to_html()
+
+# event = st.dataframe(
+#     df_farol_conciliacao_editavel,
+#     key="data",
+#     on_select="rerun",
+#     selection_mode=["multi-cell"],
+# )
+
+# event.selection
+
+# Adicione estilos CSS
+# estilos_tabela = f"""
+# <style>
+# table {{
+#     border-radius: 10px;
+#     border-collapse: separate;
+#     border-spacing: 0;
+#     width: 100%;   /* Ajusta para o tamanho real da tabela */
+#     margin: 10px auto;  /* Centraliza horizontalmente */
+# }}
+# th, td {{
+#     padding: 10px;
+#     text-align: left;
+# }}
+# th {{
+#     text-align: center !important;
+#     vertical-align: middle !important;
+# }}
+# </style>
+# {df_html}
+# """
+
+# # Exiba a tabela estilizada
+# st.markdown(estilos_tabela, unsafe_allow_html=True)
+
+# esconde_index_tabela()
 
 
 

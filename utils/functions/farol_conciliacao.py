@@ -340,3 +340,70 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
         st.dataframe(df_dias_nao_conciliados_casa_fmt, hide_index=True)
         st.write(f'**Quantidade de dias não conciliados:** {qtd_dias_nao_conciliados}')
 
+
+def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
+    meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    df_copia = df.copy()
+
+    # Para cada mês, montar a lista com o valor de todas as casas
+    for i, mes in enumerate(meses):
+        coluna_mes = []
+        coluna_mes_fmt = []
+        for lista in lista_casas_mes:  # percorre cada casa
+            if i <= mes_atual - 1: 
+                porc_dias_conciliados = 100 - lista[i] # pega o mês i dessa casa
+            else:
+                porc_dias_conciliados = 0   
+            coluna_mes.append(porc_dias_conciliados)
+            porc_dias_conciliados_fmt = f"{format_brazilian(porc_dias_conciliados)} %"
+            coluna_mes_fmt.append(porc_dias_conciliados_fmt)
+
+        # adiciona essa lista como coluna no df (20 valores)
+        df[f'{mes}/{ano_farol}'] = coluna_mes
+        df_copia[f'{mes}/{ano_farol}'] = coluna_mes_fmt
+    
+    return df_copia
+
+
+def esconde_index_tabela():
+    # Inject custom JavaScript - esconder index da tabela
+    hide_index_js = """
+    <script>
+        const tables = window.parent.document.querySelectorAll('table');
+        tables.forEach(table => {
+            const indexColumn = table.querySelector('thead th:first-child');
+            if (indexColumn) {
+                indexColumn.style.display = 'none';
+            }
+            const indexCells = table.querySelectorAll('tbody th');
+            indexCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
+        });
+    </script>
+    """
+
+    # Use components.html to inject the JavaScript
+    st.components.v1.html(hide_index_js, height=0)
+
+
+# Estilo para células com conciliação 100%
+def estilos_celulas(val):
+    # Tenta tratar apenas valores que parecem porcentagem
+    try:
+        # remove '%' e converte para float
+        numero = float(str(val).replace('%', '').replace(',', '.').strip())
+    except:
+        # se não der para converter, é texto, não pinta
+        return ""
+    
+    if numero == 100:
+        return "background-color: #b5e3bd; color: #216233;"
+    elif numero != 0:
+        return "background-color: #ffeeba; color: #e68700;"
+    else:
+        return ""
+
+    
+
+
