@@ -302,7 +302,7 @@ def grafico_total_ajustes_mes(df_ajustes_filtrado, lista_ajustes_pos_mes_fmt, li
     mes_selecionado = st_echarts(options=grafico_total_ajustes_mes, events=events, height="400px", width="100%")
     
     if not mes_selecionado:
-        st.warning("Selecione um mês para visualizar os ajustes correspondentes")
+        st.info("Selecione um mês para visualizar os ajustes correspondentes")
 
     else:
         st.divider()

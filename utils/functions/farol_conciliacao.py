@@ -191,7 +191,7 @@ def grafico_dias_nao_conciliados_mes(casas_validas, lista_casas, mes_selecionado
     casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_mes, events=events, height="550px", width="100%")
 
     if not casa_selecionada:
-        st.warning("Selecione uma casa para visualizar os dias não conciliados")
+        st.info("Selecione uma casa para visualizar os dias não conciliados")
     else:
         # Exibe dataframe dos dias não conciliados da casa no mês
         st.divider()
@@ -330,7 +330,7 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
     casa_selecionada = st_echarts(options=grafico_dias_nao_conciliados_trim, events=events, height="550px", width="100%")
 
     if not casa_selecionada:
-        st.warning("Selecione uma casa para visualizar os dias não conciliados")
+        st.info("Selecione uma casa para visualizar os dias não conciliados")
     else:
         # Exibe dataframe dos dias não conciliados da casa no trimestre
         st.divider()

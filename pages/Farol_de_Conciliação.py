@@ -221,6 +221,6 @@ df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(
 # Exibe o df
 st.subheader('Status Conciliação Bancária - Resumo')
 st.write('Porcentagem (%) de dias conciliados por casa e mês')
-st.error('Falta considerar as diferentes contas bancárias de cada casa')
+st.warning('Falta considerar as diferentes contas bancárias de cada casa')
 st.dataframe(df_farol_conciliacao_estilo, height=705, hide_index=True)
 
