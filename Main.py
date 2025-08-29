@@ -13,6 +13,7 @@ from utils.functions.general_functions import *
 st.set_page_config(
 page_title="Conciliacao_FB",
 page_icon="💰",
+layout="centered",
 initial_sidebar_state="collapsed"
 )
 
