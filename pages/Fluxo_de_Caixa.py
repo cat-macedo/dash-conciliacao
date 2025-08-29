@@ -13,8 +13,9 @@ from workalendar.america import Brazil
 
 st.set_page_config(
     page_title="Fluxo de Caixa FB",
-    page_icon="💰",
-    layout="wide"
+    page_icon=":material/currency_exchange:",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # Se der refresh, volta para página de login
@@ -24,7 +25,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title("📊 Fluxo de Caixa Futuro FB")
+st.title(":material/currency_exchange: Fluxo de Caixa Futuro FB")
 st.divider()
 
 # Filtrando Data

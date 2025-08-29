@@ -10,8 +10,9 @@ from utils.queries import *
 
 st.set_page_config(
     page_title="Conciliação FB - Farol",
-    page_icon=":moneybag:",
-    layout="wide"
+    page_icon=":material/finance:",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # Se der refresh, volta para página de login
@@ -21,7 +22,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title("🚦 Farol de conciliação")
+st.title(":material/finance: Farol de conciliação")
 st.divider()
 
 
@@ -64,7 +65,6 @@ df_conciliacao_b_centro = conciliacao_casa(df_conciliacao_farol, "Bar Brahma - C
 df_conciliacao_b_granja = conciliacao_casa(df_conciliacao_farol, "Bar Brahma - Granja", datas_completas)
 df_conciliacao_b_paulista = conciliacao_casa(df_conciliacao_farol, "Bar Brahma Paulista", datas_completas)
 df_conciliacao_leo_centro = conciliacao_casa(df_conciliacao_farol, "Bar Léo - Centro", datas_completas)
-df_conciliacao_leo_vila = conciliacao_casa(df_conciliacao_farol, "Bar Léo - Vila Madalena", datas_completas)
 df_conciliacao_blue_note = conciliacao_casa(df_conciliacao_farol, "Blue Note - São Paulo", datas_completas)
 df_conciliacao_blue_note_novo = conciliacao_casa(df_conciliacao_farol, "Blue Note SP (Novo)", datas_completas)
 df_conciliacao_rolim = conciliacao_casa(df_conciliacao_farol, "Edificio Rolim", datas_completas)
@@ -80,7 +80,7 @@ df_conciliacao_sanduiche = conciliacao_casa(df_conciliacao_farol, "Sanduiche com
 df_conciliacao_tempus = conciliacao_casa(df_conciliacao_farol, "Tempus Fugit  Ltda ", datas_completas)
 df_conciliacao_ultra = conciliacao_casa(df_conciliacao_farol, "Ultra Evil Premium Ltda ", datas_completas)
 
-casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA', 'Tempus Fugit  Ltda', 'Ultra Evil Premium Ltda']
+casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA', 'Tempus Fugit  Ltda', 'Ultra Evil Premium Ltda']
 nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 meses = list(range(1, 13))
 qtd_dias = []
@@ -112,7 +112,6 @@ lista_conciliacao_b_centro = lista_dias_nao_conciliados_casa(df_conciliacao_b_ce
 lista_conciliacao_b_granja = lista_dias_nao_conciliados_casa(df_conciliacao_b_granja, ano_farol, df_meses, mes_atual)
 lista_conciliacao_b_paulista = lista_dias_nao_conciliados_casa(df_conciliacao_b_paulista, ano_farol, df_meses, mes_atual)
 lista_conciliacao_leo_centro = lista_dias_nao_conciliados_casa(df_conciliacao_leo_centro, ano_farol, df_meses, mes_atual)
-lista_conciliacao_leo_vila = lista_dias_nao_conciliados_casa(df_conciliacao_leo_vila, ano_farol, df_meses, mes_atual)
 lista_conciliacao_blue_note = lista_dias_nao_conciliados_casa(df_conciliacao_blue_note, ano_farol, df_meses, mes_atual)
 lista_conciliacao_blue_note_novo = lista_dias_nao_conciliados_casa(df_conciliacao_blue_note_novo, ano_farol, df_meses, mes_atual)
 lista_conciliacao_rolim = lista_dias_nao_conciliados_casa(df_conciliacao_rolim, ano_farol, df_meses, mes_atual)
@@ -134,7 +133,6 @@ lista_casas_mes = [
     lista_conciliacao_b_granja,
     lista_conciliacao_b_paulista,
     lista_conciliacao_leo_centro,
-    lista_conciliacao_leo_vila,
     lista_conciliacao_blue_note,
     lista_conciliacao_blue_note_novo,
     lista_conciliacao_rolim,
@@ -157,7 +155,6 @@ lista_conciliacao_b_centro_trim = lista_dias_nao_conciliados_casa_trim(df_concil
 lista_conciliacao_b_granja_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_granja, ano_farol, df_trimestres, mes_farol)
 lista_conciliacao_b_paulista_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_paulista, ano_farol, df_trimestres, mes_farol)
 lista_conciliacao_leo_centro_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_leo_centro, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_leo_vila_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_leo_vila, ano_farol, df_trimestres, mes_farol)
 lista_conciliacao_blue_note_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_blue_note, ano_farol, df_trimestres, mes_farol)
 lista_conciliacao_blue_note_novo_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_blue_note_novo, ano_farol, df_trimestres, mes_farol)
 lista_conciliacao_rolim_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_rolim, ano_farol, df_trimestres, mes_farol)
@@ -179,7 +176,6 @@ lista_casas_trim = [
     lista_conciliacao_b_granja_trim,
     lista_conciliacao_b_paulista_trim,
     lista_conciliacao_leo_centro_trim,
-    lista_conciliacao_leo_vila_trim,
     lista_conciliacao_blue_note_trim,
     lista_conciliacao_blue_note_novo_trim,
     lista_conciliacao_rolim_trim,
@@ -214,57 +210,17 @@ st.divider()
 df_farol_conciliacao = pd.DataFrame()
 df_farol_conciliacao['Casa'] = casas_validas
 
-# casas_selecionadas = df_farol_conciliacao_editavel.loc[df_farol_conciliacao_editavel['Teste'] == True, 'Casa'].tolist()
-#st.write(casas_selecionadas)
-
-# Função que cria a lista de cada mês da tabela
+# Função que cria a coluna de cada mês da tabela
 df_farol_conciliacao = df_farol_conciliacao_mes(lista_casas_mes, df_farol_conciliacao, ano_farol, mes_atual)
 
-# Converte com estilo aplicado
-df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(estilos_celulas)
+# Pinta as células de acordo com a porcentagem
+df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(
+    lambda val: estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol)
+    )
 
-#st.table(df_farol_conciliacao)
+# Exibe o df
 st.subheader('Status Conciliação Bancária - Resumo')
+st.write('Porcentagem (%) de dias conciliados por casa e mês')
 st.error('Falta considerar as diferentes contas bancárias de cada casa')
-st.dataframe(df_farol_conciliacao_estilo, height=740, hide_index=True)
-
-# df_html = df_farol_conciliacao_editavel.to_html()
-
-# event = st.dataframe(
-#     df_farol_conciliacao_editavel,
-#     key="data",
-#     on_select="rerun",
-#     selection_mode=["multi-cell"],
-# )
-
-# event.selection
-
-# Adicione estilos CSS
-# estilos_tabela = f"""
-# <style>
-# table {{
-#     border-radius: 10px;
-#     border-collapse: separate;
-#     border-spacing: 0;
-#     width: 100%;   /* Ajusta para o tamanho real da tabela */
-#     margin: 10px auto;  /* Centraliza horizontalmente */
-# }}
-# th, td {{
-#     padding: 10px;
-#     text-align: left;
-# }}
-# th {{
-#     text-align: center !important;
-#     vertical-align: middle !important;
-# }}
-# </style>
-# {df_html}
-# """
-
-# # Exiba a tabela estilizada
-# st.markdown(estilos_tabela, unsafe_allow_html=True)
-
-# esconde_index_tabela()
-
-
+st.dataframe(df_farol_conciliacao_estilo, height=705, hide_index=True)
 

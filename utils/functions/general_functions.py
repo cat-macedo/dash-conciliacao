@@ -19,11 +19,11 @@ def config_sidebar():
   if st.session_state["loggedIn"]:
     with st.sidebar:
         st.title("Menu")
-        st.page_link("pages/Conciliações.py", label="💰 Conciliações")
-        st.page_link("pages/Farol_de_Conciliação.py", label="  ↳ 🚦 Farol de Conciliação")
-        st.page_link("pages/Ajustes.py", label="  ↳ ⚖️ Ajustes")
+        st.page_link("pages/Conciliações.py", label=":material/money_bag: Conciliações")
+        st.page_link("pages/Farol_de_Conciliação.py", label="  ↳ :material/finance: Farol de Conciliação")
+        st.page_link("pages/Ajustes.py", label="  ↳ :material/instant_mix: Ajustes")
         st.write("")
-        st.page_link("pages/Fluxo_de_Caixa.py", label="📊 Fluxo de Caixa")
+        st.page_link("pages/Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
         st.write("")
         st.button(label="Logout", on_click=logout)
 
@@ -56,7 +56,7 @@ def formata_df(df):
     
     # Aplica formatação brasileira em colunas numéricas 
     for col in df_formatado.select_dtypes(include=['object', 'number']).columns: 
-        if col != "Doc_NF":
+        if col != "Doc_NF" and col != "ID_Casa":
             df_formatado[col] = df_formatado[col].apply(format_brazilian) 
     
     # Aplica formatação brasileira em colunas de data 

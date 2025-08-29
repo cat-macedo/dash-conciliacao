@@ -350,10 +350,12 @@ def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
         coluna_mes = []
         coluna_mes_fmt = []
         for lista in lista_casas_mes:  # percorre cada casa
-            if i <= mes_atual - 1: 
+            if (i <= mes_atual - 1) and (ano_farol == ano_atual): 
                 porc_dias_conciliados = 100 - lista[i] # pega o mês i dessa casa
+            elif (i > mes_atual - 1) and (ano_farol == ano_atual):
+                porc_dias_conciliados = 0
             else:
-                porc_dias_conciliados = 0   
+                porc_dias_conciliados = 100 - lista[i]   
             coluna_mes.append(porc_dias_conciliados)
             porc_dias_conciliados_fmt = f"{format_brazilian(porc_dias_conciliados)} %"
             coluna_mes_fmt.append(porc_dias_conciliados_fmt)
@@ -365,42 +367,44 @@ def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     return df_copia
 
 
-def esconde_index_tabela():
-    # Inject custom JavaScript - esconder index da tabela
-    hide_index_js = """
-    <script>
-        const tables = window.parent.document.querySelectorAll('table');
-        tables.forEach(table => {
-            const indexColumn = table.querySelector('thead th:first-child');
-            if (indexColumn) {
-                indexColumn.style.display = 'none';
-            }
-            const indexCells = table.querySelectorAll('tbody th');
-            indexCells.forEach(cell => {
-                cell.style.display = 'none';
-            });
-        });
-    </script>
-    """
+# def esconde_index_tabela():
+#     # Inject custom JavaScript - esconder index da tabela
+#     hide_index_js = """
+#     <script>
+#         const tables = window.parent.document.querySelectorAll('table');
+#         tables.forEach(table => {
+#             const indexColumn = table.querySelector('thead th:first-child');
+#             if (indexColumn) {
+#                 indexColumn.style.display = 'none';
+#             }
+#             const indexCells = table.querySelectorAll('tbody th');
+#             indexCells.forEach(cell => {
+#                 cell.style.display = 'none';
+#             });
+#         });
+#     </script>
+#     """
 
-    # Use components.html to inject the JavaScript
-    st.components.v1.html(hide_index_js, height=0)
+#     # Use components.html to inject the JavaScript
+#     st.components.v1.html(hide_index_js, height=0)
 
 
 # Estilo para células com conciliação 100%
-def estilos_celulas(val):
+def estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol):
     # Tenta tratar apenas valores que parecem porcentagem
     try:
         # remove '%' e converte para float
         numero = float(str(val).replace('%', '').replace(',', '.').strip())
     except:
-        # se não der para converter, é texto, não pinta
+        # se não der para converter (é texto), não pinta
         return ""
     
     if numero == 100:
         return "background-color: #b5e3bd; color: #216233;"
     elif numero != 0:
         return "background-color: #ffeeba; color: #e68700;"
+    elif numero == 0 and ano_farol != ano_atual:
+        return "background-color: #ff7b5a; color: #7a1b0c;"
     else:
         return ""
 
