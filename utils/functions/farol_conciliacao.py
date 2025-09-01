@@ -341,6 +341,7 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
         st.write(f'**Quantidade de dias não conciliados:** {qtd_dias_nao_conciliados}')
 
 
+# Tabela de resumo conciliação
 def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     df_copia = df.copy()
@@ -349,12 +350,16 @@ def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     for i, mes in enumerate(meses):
         coluna_mes = []
         coluna_mes_fmt = []
-        for lista in lista_casas_mes:  # percorre cada casa
-            if (i <= mes_atual - 1) and (ano_farol == ano_atual): 
+        meses_nao_conciliados = []
+        for lista in lista_casas_mes:  # percorre a lista de porc de dias não conciliados de cada casa
+            if (i == mes_atual - 1) and (ano_farol == ano_atual): # para mês e ano atual
+                if lista[i] == 0: # se não há dias conciliados, não mostra 100%
+                    porc_dias_conciliados = 0
+            elif (i < mes_atual - 1) and (ano_farol == ano_atual): # para meses anteriores ao atual e ano atual
                 porc_dias_conciliados = 100 - lista[i] # pega o mês i dessa casa
-            elif (i > mes_atual - 1) and (ano_farol == ano_atual):
+            elif (i > mes_atual - 1) and (ano_farol == ano_atual): # para meses posteriores ao atual e ano atual
                 porc_dias_conciliados = 0
-            else:
+            else: # para anos anterioes
                 porc_dias_conciliados = 100 - lista[i]   
             coluna_mes.append(porc_dias_conciliados)
             porc_dias_conciliados_fmt = f"{format_brazilian(porc_dias_conciliados)} %"
@@ -367,29 +372,7 @@ def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     return df_copia
 
 
-# def esconde_index_tabela():
-#     # Inject custom JavaScript - esconder index da tabela
-#     hide_index_js = """
-#     <script>
-#         const tables = window.parent.document.querySelectorAll('table');
-#         tables.forEach(table => {
-#             const indexColumn = table.querySelector('thead th:first-child');
-#             if (indexColumn) {
-#                 indexColumn.style.display = 'none';
-#             }
-#             const indexCells = table.querySelectorAll('tbody th');
-#             indexCells.forEach(cell => {
-#                 cell.style.display = 'none';
-#             });
-#         });
-#     </script>
-#     """
-
-#     # Use components.html to inject the JavaScript
-#     st.components.v1.html(hide_index_js, height=0)
-
-
-# Estilo para células com conciliação 100%
+# Estilo para células por porcentagem de conciliação 
 def estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol):
     # Tenta tratar apenas valores que parecem porcentagem
     try:
@@ -409,5 +392,23 @@ def estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol):
         return ""
 
     
+def df_farol_conciliacao_casa_mes(df_conciliacao_farol, casa_selecionada, lista_casas_mes, casas_validas, ano_farol, datas_completas):
+    nomes_meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    # Pega o indice da casa selecionada 
+    for i, casa in enumerate(casas_validas):
+        if casa_selecionada == casa:
+            indice_casa = i
 
+    # Cria a lista de indices dos meses nao conciliados de cada casa
+    lista_meses_nao_conciliados_casa = []  
+    for casa in lista_casas_mes:  
+        lista_indices = [i for i, valor in enumerate(casa) if valor != 0]  
+        lista_meses_nao_conciliados_casa.append(lista_indices)  
 
+    for mes_nao_conciliado in lista_meses_nao_conciliados_casa[indice_casa]:
+        st.subheader(f"{nomes_meses[mes_nao_conciliado]}")
+        df_dias_nao_conciliados_casa, qtd_dias_nao_conciliados = dias_nao_conciliados_casa_mes(df_conciliacao_farol, casa_selecionada, mes_nao_conciliado, ano_farol, datas_completas)
+        df_dias_nao_conciliados_casa_fmt = formata_df(df_dias_nao_conciliados_casa)
+        st.dataframe(df_dias_nao_conciliados_casa_fmt, hide_index=True)
+        st.write(f'**Quantidade de dias não conciliados:** {qtd_dias_nao_conciliados}')
+        st.divider()

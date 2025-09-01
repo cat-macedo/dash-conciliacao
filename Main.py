@@ -211,6 +211,14 @@ def run():
         return df_eventos
     st.session_state["df_eventos"] = eventos()
 
+    @st.cache_data(show_spinner=False)
+    def contas_bancarias():
+        result, column_names = execute_query(GET_CONTAS_BANCARIAS, conn_fb)
+        df_contas_bancarias = pd.DataFrame(result, columns=column_names)
+
+        return df_contas_bancarias
+    st.session_state["df_contas_bancarias"] = contas_bancarias()
+
 
 def main():
 

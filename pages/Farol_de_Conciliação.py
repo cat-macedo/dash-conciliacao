@@ -80,7 +80,7 @@ df_conciliacao_sanduiche = conciliacao_casa(df_conciliacao_farol, "Sanduiche com
 df_conciliacao_tempus = conciliacao_casa(df_conciliacao_farol, "Tempus Fugit  Ltda ", datas_completas)
 df_conciliacao_ultra = conciliacao_casa(df_conciliacao_farol, "Ultra Evil Premium Ltda ", datas_completas)
 
-casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA', 'Tempus Fugit  Ltda', 'Ultra Evil Premium Ltda']
+casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ']
 nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 meses = list(range(1, 13))
 qtd_dias = []
@@ -206,7 +206,6 @@ with st.container(border=True):
 
 
 # Cria e exibe tabela do farol de conciliação
-st.divider()
 df_farol_conciliacao = pd.DataFrame()
 df_farol_conciliacao['Casa'] = casas_validas
 
@@ -218,9 +217,30 @@ df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(
     lambda val: estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol)
     )
 
-# Exibe o df
-st.subheader('Status Conciliação Bancária - Resumo')
-st.write('Porcentagem (%) de dias conciliados por casa e mês')
-st.warning('Falta considerar as diferentes contas bancárias de cada casa')
-st.dataframe(df_farol_conciliacao_estilo, height=705, hide_index=True)
+if mes_farol == 'Todos os meses':
+    # Exibe o df
+    st.divider()
+    st.subheader('Status Conciliação Bancária - Resumo')
+    st.write('Porcentagem (%) de dias conciliados por casa e mês')
+    # st.warning('Falta considerar as diferentes contas bancárias de cada casa')
+    st.dataframe(df_farol_conciliacao_estilo, height=705, hide_index=True)
+    
+    st.write("")
+    st.subheader(":material/arrow_downward: Visualizar dias não conciliados")
+
+    df_casas = st.session_state["df_casas"]
+    casas = df_casas['Casa'].tolist()
+    casas.remove("All bar")
+
+    casa_selecionada = st.selectbox("", casas, index=None, placeholder='Selecione uma casa')
+
+    # Definindo um dicionário para mapear nomes de casas a IDs de casas
+    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
+
+    # Obtendo o ID da casa selecionada
+    if casa_selecionada != None:
+        id_casa = mapeamento_casas[casa_selecionada]
+        # Exibe dataframe dos dias não conciliados da casa no mês
+        
+        df_farol_conciliacao_casa_mes(df_conciliacao_farol, casa_selecionada, lista_casas_mes, casas_validas, ano_farol, datas_completas)
 

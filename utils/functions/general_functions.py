@@ -56,7 +56,7 @@ def formata_df(df):
     
     # Aplica formatação brasileira em colunas numéricas 
     for col in df_formatado.select_dtypes(include=['object', 'number']).columns: 
-        if col != "Doc_NF" and col != "ID_Casa":
+        if col != "Doc_NF" and "ID" not in col:
             df_formatado[col] = df_formatado[col].apply(format_brazilian) 
     
     # Aplica formatação brasileira em colunas de data 
