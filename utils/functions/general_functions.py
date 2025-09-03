@@ -65,6 +65,18 @@ def formata_df(df):
     return df_formatado
 
 
+def colorir_conciliacao(row):
+    if row['Conciliação'] != '0,00':
+        return ['background-color: #ff7b5a; color: black;'] * len(row)
+    # else:
+    #     if pd.isna(venc) or pd.isna(receb):
+    #         return [''] * len(row)
+    #     if receb > venc:
+    #         return ['background-color: #fff9c4'] * len(row)  # Atrasado
+    else:
+        return [''] * len(row)  # Em dia
+
+
 # Funções para formatar números
 def format_brazilian(num):
     try:

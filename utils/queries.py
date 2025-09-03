@@ -153,6 +153,7 @@ CASE
 	WHEN tsp.DESCRICAO IS NULL THEN "Pendente"
 	ELSE tsp.DESCRICAO 
 END as 'Status_Pgto',
+tcb.ID as 'ID_Conta_Bancaria',
 tcb.NOME_DA_CONTA as 'Conta_Bancaria',
 tdr.FK_LOJA_CNPJ as 'CNPJ_Loja'
 FROM T_DESPESA_RAPIDA tdr
@@ -326,10 +327,13 @@ tbj.ID as 'ID_Bloqueio',
 te.ID as 'ID_Casa',
 te.NOME_FANTASIA as 'Casa',
 tbj.DATA_TRANSACAO as 'Data_Transacao',
+tcb.ID as 'ID_Conta_Bancaria',
+tcb.NOME_DA_CONTA as 'Nome da Conta',
 tbj.VALOR as 'Valor',
 tbj.OBSERVACAO as 'Observacao'
 FROM T_BLOQUEIOS_JUDICIAIS tbj 
 LEFT JOIN T_EMPRESAS te ON (tbj.FK_EMPRESA = te.ID)
+LEFT JOIN T_CONTAS_BANCARIAS tcb ON (tcb.ID = tbj.FK_CONTA_BANCARIA)
 ORDER BY te.NOME_FANTASIA ASC, tbj.DATA_TRANSACAO DESC
 """
 

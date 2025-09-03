@@ -21,6 +21,128 @@ def calcula_diferencas(df, coluna_principal, colunas_valores):
     return diferenca
 
 
+# Cria uma tab para cada conta bancária da casa
+def cria_tabs_contas(lista_contas_casa, df_contas, id_casa, df_custos_blueme_sem_parc, df_extratos_bancarios):
+    # Mapeamento nome → ID
+    mapeamento_contas = dict(zip(df_contas["Nome da Conta"], df_contas["ID_Conta"]))
+
+    # Lista de IDs que terão tabs individuais em cada casa
+    ids_exclusivos_por_casa = {                      
+        122: [113, 183],       
+        114: [103, 130, 137],                        
+        148: [148, 153, 164, 187],  
+        173: [188, 190],                                             
+        116: [140, 151],                           
+        110: [117, 181],                          
+        129: [109],                            
+        127: [104, 176],             
+        156: [145, 155, 168],    
+        160: [154],    
+        105: [105, 150, 160, 165],                         
+        128: [115, 182],   
+        104: [127, 138, 107, 110, 169],                         
+        149: [132, 133, 134, 149],   
+        115: [126, 139, 170, 186],
+        142: [146],
+        143: [111, 129],
+        145: [124, 184, 185]                                              
+    }
+
+    # pega os exclusivos da casa atual (se existir)
+    ids_exclusivos = ids_exclusivos_por_casa.get(id_casa, [])
+
+    lista_tabs = []
+    lista_ids = []
+
+    lista_contas_custos_blueme = df_custos_blueme_sem_parc['Conta_Bancaria'].tolist()
+    lista_contas_custos_blueme = list(set(lista_contas_custos_blueme))
+
+    # cria tabs individuais só para os exclusivos
+    for conta in lista_contas_custos_blueme:
+        # ignora nulos
+        if pd.isna(conta):
+            continue  
+
+        # pega o ID da conta de forma segura
+        id_conta = mapeamento_contas.get(conta)
+
+        if id_conta is None:
+            # se não encontrar, joga pra "Outras contas"
+            if "Outras contas" not in lista_tabs:
+                lista_tabs.append("Outras contas")
+                lista_ids.append("OUTRAS")
+            continue
+
+        if id_conta in ids_exclusivos:
+            lista_tabs.append(conta)
+            lista_ids.append(id_conta)
+        else:
+            if "Outras contas" not in lista_tabs:
+                lista_tabs.append("Outras contas")
+                lista_ids.append("OUTRAS")
+        
+    # cria as tabs no Streamlit
+    tabs = st.tabs(lista_tabs)
+
+    for i, conta_fmt in enumerate(lista_tabs):
+        with tabs[i]:
+            st.subheader(conta_fmt)
+
+            # Contas que não estão entre as principais da casa (tesouraria, petty cash)
+            if conta_fmt == "Outras contas":
+                # pega os IDs que não são exclusivos
+                ids_outras = [
+                        id_conta
+                        for nome, id_conta in mapeamento_contas.items()
+                        if id_conta not in ids_exclusivos
+                    ]
+
+                # filtra as despesas dessas contas
+                df_blueme_outras = df_custos_blueme_sem_parc[
+                    df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isin(ids_outras) 
+                    | df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isna()]                
+                df_blueme_outras['Realizacao_Pgto'] = df_blueme_outras['Realizacao_Pgto'].dt.date
+
+                # filtra também os extratos
+                df_extratos_outras = df_extratos_bancarios[df_extratos_bancarios['ID_Conta_Bancaria'].isin(ids_outras)]
+                df_extratos_outras['Valor'] = df_extratos_outras['Valor'] * (-1)
+                df_extratos_outras['Data_Transacao'] = df_extratos_outras['Data_Transacao'].dt.date
+
+                # faz o merge para tentar conciliar
+                df_blueme_outras = df_blueme_outras.merge(
+                    df_extratos_outras,
+                    left_on=['Realizacao_Pgto', 'Valor'], # OLHAR ISSO AMANHA
+                    right_on=['Data_Transacao', 'Valor'],
+                    how='left'
+                )
+
+                st.dataframe(df_blueme_outras, use_container_width=True, hide_index=True)
+
+            else:
+                id_conta = lista_ids[i]
+                st.write(f"Informações da conta **{conta_fmt}**")
+                st.write(f"ID da conta: {id_conta}")
+
+                # filtra as despesas dessas contas
+                df_blueme_sem_parc_conta = df_custos_blueme_sem_parc[df_custos_blueme_sem_parc['ID_Conta_Bancaria'] == id_conta]
+                df_blueme_sem_parc_conta['Realizacao_Pgto'] = df_blueme_sem_parc_conta['Realizacao_Pgto'].dt.date
+
+                # filtra também os extratos
+                df_extratos_conta = df_extratos_bancarios[df_extratos_bancarios['ID_Conta_Bancaria'] == id_conta]
+                df_extratos_conta['Valor'] = df_extratos_conta['Valor'] * (-1)
+                df_extratos_conta['Data_Transacao'] = df_extratos_conta['Data_Transacao'].dt.date
+
+                # faz o merge para tentar conciliar
+                df_blueme_sem_parc = df_blueme_sem_parc_conta.merge(
+                    df_extratos_conta,
+                    left_on=['ID_Conta_Bancaria', 'Realizacao_Pgto', 'Valor'],
+                    right_on=['ID_Conta_Bancaria', 'Data_Transacao', 'Valor'],
+                    how='left'
+                )
+
+                st.dataframe(df_blueme_sem_parc, use_container_width=True, hide_index=True)
+
+
 # Função para conciliação geral inicial
 def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
     ### Definindo Bases - Filtra por casa e data ###
@@ -269,8 +391,9 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         for col in df_formatado.select_dtypes(include='datetime').columns:
             df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y')
 
-        # Exibe df de conciliação
-        st.dataframe(df_formatado, use_container_width=True, hide_index=True)
+        # Estiliza linhas não conciliadas e exibe df de conciliação
+        df_styled = df_formatado.style.apply(colorir_conciliacao, axis=1)
+        st.dataframe(df_styled, use_container_width=True, hide_index=True)
 
         st.divider()
 
@@ -356,22 +479,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         st.divider()
         lista_contas_casa = df_contas_filtrada['Nome da Conta'].tolist()
         
-        # Cria as tabs dinamicamente
-        tabs = st.tabs(lista_contas_casa)
-
-        # Itera sobre cada tab e conta
-        for i, conta in enumerate(lista_contas_casa):
-            with tabs[i]:
-                st.subheader(f"{conta}")
-                # Aqui você coloca o que quer exibir dentro da tab
-                st.write(f"Informações da conta **{conta}**")
-
-                # Definindo um dicionário para mapear nomes de casas a IDs de casas
-                mapeamento_contas = dict(zip(df_contas["Nome da Conta"], df_contas["ID_Conta"]))
-
-                # Obtendo o ID da casa selecionada
-                id_conta = mapeamento_contas[conta]
-                st.write(id_conta)
+        cria_tabs_contas(lista_contas_casa, df_contas, id_casa, df_custos_blueme_sem_parcelam_filtrada, df_extratos_bancarios_filtrada)
 
 
 # Cria tabela de conciliação para cada casa
