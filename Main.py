@@ -62,7 +62,7 @@ def run():
     def casas():
         result, column_names = execute_query(GET_CASAS, conn_fb)
         df_casas = pd.DataFrame(result, columns=column_names) 
-        casas_validas = ['All bar', 'Escritório Fabrica de Bares', 'Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ']
+        casas_validas = ['All bar', 'Escritório Fabrica de Bares', 'Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ']
         df_casas_validas = pd.DataFrame(casas_validas, columns=['Casa']) 
         df_casas_validas = df_casas.merge(df_casas_validas, on="Casa", how="inner")
     

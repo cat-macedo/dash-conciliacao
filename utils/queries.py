@@ -218,6 +218,7 @@ GET_CUSTOS_BLUEME_COM_PARCELAMENTO = """
             THEN 'Parcela_Paga'
         ELSE 'Parcela_Pendente'
     END as 'Status_Pgto',
+    tcb.ID as 'ID_Conta_Bancaria',
     tcb.NOME_DA_CONTA as 'Conta_Bancaria'
   FROM 
     T_DESPESA_RAPIDA tdr

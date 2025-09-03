@@ -3,6 +3,3 @@ base = "light"
 
 [client]
 showSidebarNavigation = false
-
-[server]
-maxMessageSize = 1000

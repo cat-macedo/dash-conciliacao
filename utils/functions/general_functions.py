@@ -65,16 +65,19 @@ def formata_df(df):
     return df_formatado
 
 
+# Funções para colorir df de acordo com condições 
 def colorir_conciliacao(row):
     if row['Conciliação'] != '0,00':
-        return ['background-color: #ff7b5a; color: black;'] * len(row)
-    # else:
-    #     if pd.isna(venc) or pd.isna(receb):
-    #         return [''] * len(row)
-    #     if receb > venc:
-    #         return ['background-color: #fff9c4'] * len(row)  # Atrasado
+        return ['background-color: #e6937e; color: black;'] * len(row)
     else:
-        return [''] * len(row)  # Em dia
+        return [''] * len(row)  # Conciliados não pinta
+    
+#
+def colorir_consta_no_extrato(row):
+    if pd.isna(row['ID_Extrato_Bancario']):
+        return ['background-color: #e6937e; color: black;'] * len(row)
+    else:
+        return [''] * len(row)
 
 
 # Funções para formatar números

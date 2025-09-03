@@ -64,7 +64,7 @@ lista_qtd_ajustes_mes = qtd_ajustes_mes(df_ajustes_filtrado)
 
 
 # Lista nomes das casas válidas
-casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA', 'Tempus Fugit  Ltda', 'Ultra Evil Premium Ltda']
+casas_validas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA', 'Tempus Fugit  Ltda', 'Ultra Evil Premium Ltda']
 
 # Lista de quantidade de ajustes por mês de cada casa
 lista_qtd_ajustes_arcos = lista_ajustes_casa("Arcos", ano)
@@ -73,7 +73,6 @@ lista_qtd_ajustes_b_granja = lista_ajustes_casa("Bar Brahma - Granja", ano)
 lista_qtd_ajustes_b_paulista = lista_ajustes_casa("Bar Brahma Paulista", ano)
 lista_qtd_ajustes_leo_centro = lista_ajustes_casa("Bar Léo - Centro", ano)
 lista_qtd_ajustes_blue_note = lista_ajustes_casa("Blue Note - São Paulo", ano)
-lista_qtd_ajustes_blue_note_novo = lista_ajustes_casa("Blue Note SP (Novo)", ano)
 lista_qtd_ajustes_rolim = lista_ajustes_casa("Edifício Rolim", ano)
 lista_qtd_ajustes_fb = lista_ajustes_casa("Escritório Fabrica de Bares", ano)
 lista_qtd_ajustes_girondino = lista_ajustes_casa("Girondino ", ano)
@@ -95,7 +94,6 @@ lista_ajustes_casas = [
   lista_qtd_ajustes_b_paulista,
   lista_qtd_ajustes_leo_centro,
   lista_qtd_ajustes_blue_note,
-  lista_qtd_ajustes_blue_note_novo,
   lista_qtd_ajustes_rolim,
   lista_qtd_ajustes_fb,
   lista_qtd_ajustes_girondino,
