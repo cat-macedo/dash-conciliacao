@@ -88,7 +88,11 @@ else:
         with tab1: # Exibe conciliação geral
             conciliacao_inicial(id_casa, casa, start_date, end_date, "Geral")
             
-        with tab2:
+        with tab2: # Exibe apenas itens do Contas a Pagar
             conciliacao_inicial(id_casa, casa, start_date, end_date, "Contas a Pagar")
+
+        with tab3: # Exibe apenas itens do Contas a Receber
+            conciliacao_inicial(id_casa, casa, start_date, end_date, "Contas a Receber")
+
 
     

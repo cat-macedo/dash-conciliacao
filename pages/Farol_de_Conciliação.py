@@ -235,7 +235,7 @@ if mes_farol == 'Todos os meses':
     # Obtendo o ID da casa selecionada
     if casa_selecionada != None:
         id_casa = mapeamento_casas[casa_selecionada]
-        # Exibe dataframe dos dias não conciliados da casa no mês
         
+        # Exibe dataframe dos dias não conciliados da casa no mês
         df_farol_conciliacao_casa_mes(df_conciliacao_farol, casa_selecionada, lista_casas_mes, casas_validas, ano_farol, datas_completas)
 

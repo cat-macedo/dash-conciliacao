@@ -24,7 +24,7 @@ def calcula_diferencas(df, coluna_principal, colunas_valores):
 
 # Função para conciliação geral inicial
 def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
-    ### Definindo Bases - Filtra por casa e data ###
+    ## Definindo Bases - Filtra por casa e data ##
     
     ## Extratos Zig
     df_extrato_zig = st.session_state["df_extrato_zig"]
@@ -145,7 +145,6 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
             df_conciliacao['Data'] = datas
         
         # Colunas 
-
         # Extrato Zig (Saques) #
         if 'Extrato Zig (Saques)' not in df_conciliacao.columns:
             df_conciliacao['Extrato Zig (Saques)'] = somar_por_data(
@@ -273,7 +272,8 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         # Estiliza linhas não conciliadas e exibe df de conciliação
         df_styled = df_formatado.style.apply(colorir_conciliacao, axis=1)
         st.dataframe(df_styled, use_container_width=True, hide_index=True)
-
+        exibir_legenda("conciliacao")
+        
         st.divider()
 
         ## Exportando em Excel
@@ -328,36 +328,17 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         )
     
     elif tab == 'Contas a Pagar':
-        st.subheader("Despesas BlueMe Sem Parcelamento - Todas as contas")
-        st.dataframe(df_custos_blueme_sem_parcelam_formatada, use_container_width=True, hide_index=True)
-        st.divider()
+        st.markdown(f":material/arrow_downward: **Contas Bancárias - {casa}**")
+        st.write("")
+        cria_tabs_contas(
+            df_contas, 
+            id_casa, 
+            df_custos_blueme_sem_parcelam_filtrada, df_custos_blueme_sem_parcelam_formatada, 
+            df_custos_blueme_com_parcelam_filtrada, df_custos_blueme_com_parcelam_formatada, 
+            df_mutuos_formatada, 
+            df_bloqueios_judiciais_filtrada,
+            df_extratos_bancarios_filtrada, df_extratos_bancarios_formatada)
 
-        st.subheader("Despesas BlueMe Com Parcelamento - Todas as contas")
-        st.dataframe(df_custos_blueme_com_parcelam_formatada, use_container_width=True, hide_index=True)
-        st.divider()
-
-        st.subheader("Saídas Mútuos - Todas as contas")
-        df_mutuos_formatada = df_mutuos_formatada[df_mutuos_formatada['ID_Casa_Saida'] == id_casa]
-        st.dataframe(df_mutuos_formatada, use_container_width=True, hide_index=True)
-        st.divider()
-
-        st.subheader("Bloqueios Judiciais - Todas as contas")
-        df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[df_bloqueios_judiciais_filtrada['Valor'] < 0]
-        df_bloqueios_judiciais_formatada = formata_df(df_bloqueios_judiciais_filtrada)
-        st.dataframe(df_bloqueios_judiciais_formatada, use_container_width=True, hide_index=True)
-        st.divider()
-
-        st.subheader("Extratos Bancários (Débito) - Todas as contas")
-        df_extratos_bancarios_formatada = df_extratos_bancarios_formatada[df_extratos_bancarios_formatada['Tipo_Credito_Debito'] == 'DEBITO']
-        st.dataframe(df_extratos_bancarios_formatada, use_container_width=True, hide_index=True)
-        st.divider()
-
-        st.subheader("Contas Bancárias")
-        # df_contas_filtrada = df_contas[df_contas['ID_Casa'] == id_casa]
-        # st.dataframe(df_contas_filtrada, use_container_width=True, hide_index=True)
-        # st.divider()
-        # lista_contas_casa = df_contas_filtrada['Nome da Conta'].tolist()
-        
-        cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parcelam_filtrada, df_custos_blueme_com_parcelam_filtrada, df_bloqueios_judiciais_filtrada, df_extratos_bancarios_filtrada)
-
+    elif tab == "Contas a Receber":
+        st.warning("A fazer")
 

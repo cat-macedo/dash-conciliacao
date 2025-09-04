@@ -35,9 +35,13 @@ def itens_por_conta(ids_outras, lista_ids, tab, df_custos_blueme_sem_parc, df_cu
             df_blueme_outras["ID_Conta_Bancaria_x"] = df_blueme_outras["ID_Conta_Bancaria_x"].astype("Int64")
             df_blueme_outras["ID_Extrato_Bancario"] = df_blueme_outras["ID_Extrato_Bancario"].astype("Int64")
             
-            # Estiliza e exibe 
-            df_blueme_outras_styled = df_blueme_outras.style.apply(colorir_consta_no_extrato, axis=1)
+            df_blueme_outras_styled = df_blueme_outras.style.apply(colorir_linhas(df_blueme_outras, 'ID_Despesa'), axis=1)
             st.dataframe(df_blueme_outras_styled, use_container_width=True, hide_index=True)
+
+            # Estiliza e exibe 
+            # df_blueme_outras_styled = df_blueme_outras.style.apply(colorir_consta_no_extrato, axis=1)
+            # st.dataframe(df_blueme_outras_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
             st.divider()
         
         elif item == "blueme com parcelamento":
@@ -62,9 +66,13 @@ def itens_por_conta(ids_outras, lista_ids, tab, df_custos_blueme_sem_parc, df_cu
             df_blueme_com_parc_outras["ID_Conta_Bancaria_x"] = df_blueme_com_parc_outras["ID_Conta_Bancaria_x"].astype("Int64")
             df_blueme_com_parc_outras["ID_Extrato_Bancario"] = df_blueme_com_parc_outras["ID_Extrato_Bancario"].astype("Int64")
 
-            # Estiliza e exibe 
-            df_blueme_com_parc_outras_styled = df_blueme_com_parc_outras.style.apply(colorir_consta_no_extrato, axis=1)
+            df_blueme_com_parc_outras_styled = df_blueme_com_parc_outras.style.apply(colorir_linhas(df_blueme_com_parc_outras, 'ID_Parcela'), axis=1)
             st.dataframe(df_blueme_com_parc_outras_styled, use_container_width=True, hide_index=True)
+
+            # Estiliza e exibe 
+            # df_blueme_com_parc_outras_styled = df_blueme_com_parc_outras.style.apply(colorir_consta_no_extrato, axis=1)
+            # st.dataframe(df_blueme_com_parc_outras_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
             st.divider()
 
     else:
@@ -94,9 +102,13 @@ def itens_por_conta(ids_outras, lista_ids, tab, df_custos_blueme_sem_parc, df_cu
             df_blueme_sem_parc["ID_Conta_Bancaria"] = df_blueme_sem_parc["ID_Conta_Bancaria"].astype("Int64")
             df_blueme_sem_parc["ID_Extrato_Bancario"] = df_blueme_sem_parc["ID_Extrato_Bancario"].astype("Int64")
 
-            # Estiliza a exibe
-            df_blueme_sem_parc_styled = df_blueme_sem_parc.style.apply(colorir_consta_no_extrato, axis=1)
+            df_blueme_sem_parc_styled = df_blueme_sem_parc.style.apply(colorir_linhas(df_blueme_sem_parc, 'ID_Despesa'), axis=1)
             st.dataframe(df_blueme_sem_parc_styled, use_container_width=True, hide_index=True)
+
+            # Estiliza a exibe
+            # df_blueme_sem_parc_styled = df_blueme_sem_parc.style.apply(colorir_consta_no_extrato, axis=1)
+            # st.dataframe(df_blueme_sem_parc_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
             st.divider()
 
         elif item == "blueme com parcelamento":
@@ -118,11 +130,16 @@ def itens_por_conta(ids_outras, lista_ids, tab, df_custos_blueme_sem_parc, df_cu
             df_blueme_com_parc = df_blueme_com_parc[nova_ordem]
             df_blueme_com_parc["ID_Conta_Bancaria"] = df_blueme_com_parc["ID_Conta_Bancaria"].astype("Int64")
             df_blueme_com_parc["ID_Extrato_Bancario"] = df_blueme_com_parc["ID_Extrato_Bancario"].astype("Int64")
-            df_blueme_com_parc = df_blueme_com_parc.drop_duplicates(subset=["ID_Parcela"])
+            
+            # Em vez de eliminar duplicatas, vou sinalizar que não bateu só com um item do extrato
+            # df_blueme_com_parc = df_blueme_com_parc.drop_duplicates(subset=["ID_Parcela"])
+            df_blueme_com_parc_styled = df_blueme_com_parc.style.apply(colorir_linhas(df_blueme_com_parc, 'ID_Parcela'), axis=1)
+            st.dataframe(df_blueme_com_parc_styled, use_container_width=True, hide_index=True)
 
             # Estiliza a exibe
-            df_blueme_com_parc_styled = df_blueme_com_parc.style.apply(colorir_consta_no_extrato, axis=1)
-            st.dataframe(df_blueme_com_parc_styled, use_container_width=True, hide_index=True)
+            # df_blueme_com_parc_styled = df_blueme_com_parc.style.apply(colorir_consta_no_extrato, axis=1)
+            # st.dataframe(df_blueme_com_parc_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
             st.divider()
 
         elif item == "bloqueios":
@@ -146,14 +163,18 @@ def itens_por_conta(ids_outras, lista_ids, tab, df_custos_blueme_sem_parc, df_cu
             df_bloqueios_conta["ID_Conta_Bancaria"] = df_bloqueios_conta["ID_Conta_Bancaria"].astype("Int64")
             df_bloqueios_conta["ID_Extrato_Bancario"] = df_bloqueios_conta["ID_Extrato_Bancario"].astype("Int64")
 
-            # Estiliza e exibe 
-            df_bloqueios_conta_styled = df_bloqueios_conta.style.apply(colorir_consta_no_extrato, axis=1)
+            df_bloqueios_conta_styled = df_bloqueios_conta.style.apply(colorir_linhas(df_bloqueios_conta, 'ID_Bloqueio'), axis=1)
             st.dataframe(df_bloqueios_conta_styled, use_container_width=True, hide_index=True)
+
+            # Estiliza e exibe 
+            # df_bloqueios_conta_styled = df_bloqueios_conta.style.apply(colorir_consta_no_extrato, axis=1)
+            # st.dataframe(df_bloqueios_conta_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
             st.divider()
 
 
 # Cria uma tab para cada conta bancária da casa
-def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_blueme_com_parc, df_bloqueios, df_extratos_bancarios):
+def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_blueme_sem_parc_formatada, df_custos_blueme_com_parc, df_custos_blueme_com_parc_formatada, df_mutuos_formatada, df_bloqueios, df_extratos_bancarios, df_extratos_bancarios_formatada):
     # Mapeamento nome → ID
     mapeamento_contas = dict(zip(df_contas["Nome da Conta"], df_contas["ID_Conta"]))
 
@@ -185,14 +206,24 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
     lista_tabs = []
     lista_ids = []
 
-    lista_contas = df_extratos_bancarios['Nome_Conta_Bancaria'].tolist()
+    # lista_contas = df_extratos_bancarios['Nome_Conta_Bancaria'].tolist()
+    # Junta listas de várias bases
+    lista_contas = (
+        df_extratos_bancarios['Nome_Conta_Bancaria'].tolist()
+        + df_custos_blueme_sem_parc['Conta_Bancaria'].tolist()
+        + df_custos_blueme_com_parc['Conta_Bancaria'].tolist()
+        + df_bloqueios['Nome da Conta'].tolist()
+    )
     lista_contas = list(set(lista_contas))
 
     # cria tabs individuais só para os exclusivos
     for conta in lista_contas:
-        # ignora nulos
-        if pd.isna(conta):
-            continue  
+        # trata nulos como "Outras contas"
+        if pd.isna(conta) or conta is None:
+            if "Outras contas" not in lista_tabs:
+                lista_tabs.append("Outras contas")
+                lista_ids.append("OUTRAS")
+            continue 
 
         # pega o ID da conta de forma segura
         id_conta = mapeamento_contas.get(conta)
@@ -212,16 +243,34 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                 lista_tabs.append("Outras contas")
                 lista_ids.append("OUTRAS")
         
-    # cria as tabs para cada conta
     if lista_tabs:
+        # garante que "Todas as contas" venha primeiro
+        lista_tabs = ["Todas as contas"] + lista_tabs
+        lista_ids = ["TODAS"] + lista_ids
+
+        # garante que "Outras contas" fique por último
+        if "Outras contas" in lista_tabs:
+            idx = lista_tabs.index("Outras contas")
+            lista_tabs.append(lista_tabs.pop(idx))
+            lista_ids.append(lista_ids.pop(idx))
+        
+        # cria as tabs para cada conta
         tabs = st.tabs(lista_tabs)
 
         for tab, conta_fmt in enumerate(lista_tabs):
             with tabs[tab]:
                 # st.subheader(conta_fmt)
+                if conta_fmt == "Todas as contas":
+                    exibe_tabelas_contas_a_pagar(
+                        id_casa, 
+                        df_custos_blueme_sem_parc_formatada, 
+                        df_custos_blueme_com_parc_formatada, 
+                        df_mutuos_formatada, 
+                        df_bloqueios, 
+                        df_extratos_bancarios_formatada)
 
                 # Contas que não estão entre as principais da casa (tesouraria, petty cash, sem conta)
-                if conta_fmt == "Outras contas":
+                elif conta_fmt == "Outras contas":
                     st.write("Petty cash, tesouraria, sem conta registrada, etc")
 
                     # pega os IDs que não são exclusivos
@@ -304,3 +353,35 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
 
     else: 
         st.warning('Nada para exibir')
+
+# Exibe itens do CONTAS A PAGAR em TODAS AS CONTAS
+def exibe_tabelas_contas_a_pagar(id_casa, df_custos_blueme_sem_parcelam_formatada, df_custos_blueme_com_parcelam_formatada, df_mutuos_formatada, df_bloqueios_judiciais_filtrada, df_extratos_bancarios_formatada):
+    st.subheader("Despesas BlueMe Sem Parcelamento - Todas as contas")
+    st.dataframe(df_custos_blueme_sem_parcelam_formatada, use_container_width=True, hide_index=True)
+    st.divider()
+
+    st.subheader("Despesas BlueMe Com Parcelamento - Todas as contas")
+    st.dataframe(df_custos_blueme_com_parcelam_formatada, use_container_width=True, hide_index=True)
+    st.divider()
+
+    st.subheader("Saídas Mútuos - Todas as contas")
+    df_mutuos_formatada = df_mutuos_formatada[df_mutuos_formatada['ID_Casa_Saida'] == id_casa]
+    st.dataframe(df_mutuos_formatada, use_container_width=True, hide_index=True)
+    st.divider()
+
+    st.subheader("Bloqueios Judiciais - Todas as contas")
+    df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[df_bloqueios_judiciais_filtrada['Valor'] < 0]
+    df_bloqueios_judiciais_formatada = formata_df(df_bloqueios_judiciais_filtrada)
+    st.dataframe(df_bloqueios_judiciais_formatada, use_container_width=True, hide_index=True)
+    st.divider()
+
+    st.subheader("Extratos Bancários (Débito) - Todas as contas")
+    df_extratos_bancarios_formatada = df_extratos_bancarios_formatada[df_extratos_bancarios_formatada['Tipo_Credito_Debito'] == 'DEBITO']
+    st.dataframe(df_extratos_bancarios_formatada, use_container_width=True, hide_index=True)
+    st.divider()
+
+    # st.subheader("Contas Bancárias")
+    # df_contas_filtrada = df_contas[df_contas['ID_Casa'] == id_casa]
+    # st.dataframe(df_contas_filtrada, use_container_width=True, hide_index=True)
+    # st.divider()
+    # lista_contas_casa = df_contas_filtrada['Nome da Conta'].tolist()

@@ -65,7 +65,7 @@ def formata_df(df):
     return df_formatado
 
 
-# Funções para colorir df de acordo com condições 
+# Funções para colorir df de acordo com condições e exibir legenda 
 def colorir_conciliacao(row):
     if row['Conciliação'] != '0,00':
         return ['background-color: #e6937e; color: black;'] * len(row)
@@ -73,13 +73,67 @@ def colorir_conciliacao(row):
         return [''] * len(row)  # Conciliados não pinta
     
 #
-def colorir_consta_no_extrato(row):
-    if pd.isna(row['ID_Extrato_Bancario']):
-        return ['background-color: #e6937e; color: black;'] * len(row)
-    else:
-        return [''] * len(row)
+# def colorir_consta_no_extrato(row):
+#     if pd.isna(row['ID_Extrato_Bancario']):
+#         return ['background-color: #e6937e; color: black;'] * len(row)
+#     else:
+#         return [''] * len(row)
+    
+# # 
+# def colorir_duplicados(df, coluna):
+#     def aplicar_linha(row):
+#         # Verifica se o valor aparece mais de uma vez
+#         if df[coluna].duplicated(keep=False)[row.name]:
+#             return ['background-color: yellow'] * len(row)
+#         else:
+#             return [''] * len(row)
+#     return aplicar_linha
+
+def colorir_linhas(df, coluna_duplicados):
+    def aplicar_linha(row):
+        estilos = [''] * len(row)  
+
+        # Vermelho se não consta no extrato
+        if pd.isna(row['ID_Extrato_Bancario']):
+            estilos = ['background-color: #e6937e; color: black;'] * len(row)
+
+        # Amarelo se duplicado (sobrescreve se for duplicado)
+        elif df[coluna_duplicados].duplicated(keep=False)[row.name]:
+            estilos = ['background-color: #ffffae; color: black;'] * len(row)
+
+        return estilos
+    return aplicar_linha
 
 
+# Exibe legenda para linhas pintadas do dataframe
+def exibir_legenda(parametro): 
+    if parametro == 'conciliacao':
+        span = 'Dias não conciliados'
+        st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px";>
+                <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 10px;"></div>
+                <span>{span}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    elif parametro == 'contas':
+       span = 'Despesa não consta no extrato bancário'
+       st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px; gap: 20px;">
+                <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 10px;"></div>
+                <span>Encontrou mais de um correspondente no extrato bancário (correspondência incorreta)</span>
+                <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 10px;"></div>
+                <span>{span}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    
 # Funções para formatar números
 def format_brazilian(num):
     try:
