@@ -157,7 +157,20 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
             df_conciliacao['Faturam dinheiro'] = 0 # stand-by
 
         # Receitas Extraordinárias #
+        # Data limite (eventos)
+        data_limite = pd.Timestamp("2025-09-01")
+
+        # Se data >= setembro, desconsidera eventos como receita extraordinária
         if 'Receitas Extraordinárias' not in df_conciliacao.columns:
+            # aplica regra condicional
+            df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[
+                (
+                    (df_parc_receit_extr_filtrada['Recebimento_Parcela'] < data_limite) |
+                    (df_parc_receit_extr_filtrada['Classif_Receita'] != 'Eventos')
+                )
+            ]
+
+            # soma final
             df_conciliacao['Receitas Extraordinárias'] = somar_por_data(
                 df_parc_receit_extr_filtrada, "Recebimento_Parcela", "Valor_Parcela", datas
             )

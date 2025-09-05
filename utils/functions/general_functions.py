@@ -123,10 +123,10 @@ def exibir_legenda(parametro):
        span = 'Despesa não consta no extrato bancário'
        st.markdown(
             f"""
-            <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px; gap: 20px;">
-                <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 10px;"></div>
-                <span>Encontrou mais de um correspondente no extrato bancário (correspondência incorreta)</span>
-                <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 10px;"></div>
+            <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px;">
+                <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 8px;"></div>
+                <span style="margin-right: 15px;">Encontrou mais de um correspondente no extrato bancário (correspondência incorreta)</span>
+                <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 8px;"></div>
                 <span>{span}</span>
             </div>
             """,
