@@ -102,7 +102,6 @@ def colorir_linhas(df, coluna_duplicados, coluna_doc, coluna_aprov):
             estilos = ['background-color: #ffffae; color: black;'] * len(row)
 
         # Laranja se não aprovado
-        
         if coluna_duplicados != 'ID_Bloqueio':
             if pd.isna(row[coluna_doc]) or pd.isna(row[coluna_aprov]):
                 estilos = ['background-color: #ffac34; color: black;'] * len(row)

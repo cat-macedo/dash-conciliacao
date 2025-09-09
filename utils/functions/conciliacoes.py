@@ -343,6 +343,10 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
     elif tab == 'Contas a Pagar':
         st.markdown(f":material/arrow_downward: **Contas Bancárias - {casa}**")
         st.write("")
+        df_extratos_bancarios_filtrada = df_extratos_bancarios_filtrada[df_extratos_bancarios_filtrada['Tipo_Credito_Debito'] == 'DEBITO']
+        st.write(df_extratos_bancarios_filtrada)
+        df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[df_bloqueios_judiciais_filtrada['Valor'] < 0]
+        st.write(df_bloqueios_judiciais_filtrada)
         cria_tabs_contas(
             df_contas, 
             id_casa, 
