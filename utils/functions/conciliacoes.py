@@ -136,7 +136,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         ## df de Conciliação
         st.subheader("Conciliação")
 
-        # Criar um DataFrame com todas as datas do período selecionado
+        # Criar um DataFrame com a data selecionada
         df_conciliacao = pd.DataFrame()
         st.session_state['df_conciliacao'] = None
 
@@ -344,15 +344,15 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         st.markdown(f":material/arrow_downward: **Contas Bancárias - {casa}**")
         st.write("")
         df_extratos_bancarios_filtrada = df_extratos_bancarios_filtrada[df_extratos_bancarios_filtrada['Tipo_Credito_Debito'] == 'DEBITO']
-        st.write(df_extratos_bancarios_filtrada)
         df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[df_bloqueios_judiciais_filtrada['Valor'] < 0]
-        st.write(df_bloqueios_judiciais_filtrada)
+        df_saidas_mutuos_filtrada = df_mutuos_filtrada[df_mutuos_filtrada['Casa_Saida'] == casa]
+
         cria_tabs_contas(
             df_contas, 
             id_casa, 
             df_custos_blueme_sem_parcelam_filtrada, df_custos_blueme_sem_parcelam_formatada, 
             df_custos_blueme_com_parcelam_filtrada, df_custos_blueme_com_parcelam_formatada, 
-            df_mutuos_formatada, 
+            df_saidas_mutuos_filtrada, df_mutuos_formatada, 
             df_bloqueios_judiciais_filtrada,
             df_extratos_bancarios_filtrada, df_extratos_bancarios_formatada)
 

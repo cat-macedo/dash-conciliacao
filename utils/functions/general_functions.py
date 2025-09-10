@@ -102,7 +102,7 @@ def colorir_linhas(df, coluna_duplicados, coluna_doc, coluna_aprov):
             estilos = ['background-color: #ffffae; color: black;'] * len(row)
 
         # Laranja se não aprovado
-        if coluna_duplicados != 'ID_Bloqueio':
+        if coluna_duplicados != 'ID_Bloqueio' and coluna_duplicados != 'Mutuo_ID':
             if pd.isna(row[coluna_doc]) or pd.isna(row[coluna_aprov]):
                 estilos = ['background-color: #ffac34; color: black;'] * len(row)
         
@@ -118,7 +118,7 @@ def exibir_legenda(parametro):
             f"""
             <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px";>
                 <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 10px;"></div>
-                <span>{span}</span>
+                <span style="font-size: 14px">{span}</span>
             </div>
             """,
             unsafe_allow_html=True
@@ -130,11 +130,11 @@ def exibir_legenda(parametro):
             f"""
             <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px;">
                 <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 8px;"></div>
-                <span style="margin-right: 15px;">Encontrou mais de um correspondente no extrato bancário (correspondência incorreta)</span>
+                <span style="margin-right: 15px; font-size: 14px;">Encontrou mais de um correspondente no extrato bancário (correspondência incorreta)</span>
                 <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 8px;"></div>
-                <span style="margin-right: 15px;">{span}</span>
+                <span style="margin-right: 15px; font-size: 14px;">{span}</span>
                 <div style="width: 15px; height: 15px; background-color: #ffac34; border: 1px solid #ccc; margin-right: 8px;"></div>
-                <span style="margin-right: 15px;">Documentação não aprovada</span>
+                <span style="margin-right: 15px; font-size: 14px;">Documentação não aprovada</span>
             </div>
             """,
             unsafe_allow_html=True

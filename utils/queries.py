@@ -281,14 +281,20 @@ tm.ID as 'Mutuo_ID',
 tm.`DATA` as 'Data_Mutuo',
 te.ID as 'ID_Casa_Saida',
 te.NOME_FANTASIA as 'Casa_Saida',
+tcb_s.ID AS 'ID_Conta_Saida',
+tcb_s.NOME_DA_CONTA AS 'Conta_Saida',
 te2.ID as 'ID_Casa_Entrada',
 te2.NOME_FANTASIA as 'Casa_Entrada',
+tcb_e.ID AS 'ID_Conta_Entrada',
+tcb_e.NOME_DA_CONTA AS 'Conta_Entrada',
 tm.VALOR as 'Valor',
 tm.TAG_FATURAM_ZIG as 'Tag_Faturam_Zig',
 tm.OBSERVACOES as 'Observacoes'
 FROM T_MUTUOS tm 
 LEFT JOIN T_EMPRESAS te ON (tm.FK_LOJA_SAIDA = te.ID)
 LEFT JOIN T_EMPRESAS te2 ON (tm.FK_LOJA_ENTRADA = te2.ID)
+LEFT JOIN T_CONTAS_BANCARIAS AS tcb_s ON (tm.FK_CONTA_BANCARIA_SAIDA = tcb_s.ID)
+LEFT JOIN T_CONTAS_BANCARIAS tcb_e ON (tm.FK_CONTA_BANCARIA_ENTRADA = tcb_e.ID)
 ORDER BY te.NOME_FANTASIA ASC, tm.`DATA` DESC
 """
 

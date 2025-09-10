@@ -10,14 +10,28 @@ import re
 
 # Mapeamentos manuais: fornecedor da despesa:descrição do extrato
 exceptions={
-    "emporio mel": "cia do whisky", 
+    "emporio mel": ["cia do whisky", "PAGAMENTO DE BOLETO - CIA DO WHISKY"], 
     "ministerio da fazenda": "receita federal",
     "abrasel sao paulo": "Associacao Brasileira de Bares",
     "PSS - CENTRAL DA LIMPEZA LTDA": "Psss Ltda",
     "PSS – CENTRAL DA LIMPEZA LTDA": "Psss Ltda",
-    "HORTIFRUTI DO CHEF LTDA": "Ng27 Consultoria e Gestao Empr",
+    "HORTIFRUTI DO CHEF LTDA": ["Ng27 Consultoria e Gestao Empr", "PAGAMENTO DE BOLETO - NG27 CONSULTORIA E GESTAO EMPR"],
     "AROMIZY LOCACAO E DISTRIBUICAO LTDA.": "Purifikar Sp Locacao",
-    "HORTIFRUTI DO CHEF LTDA": "PAGAMENTO DE BOLETO - NG27 CONSULTORIA E GESTAO EMPR"
+    "CAROLINA AMANCIO": "Nu Pagamentos Sa",
+    "CASANDRA DEVOTTO": "Pagseguro Internet I.P. S.A.",
+    "ICE4": "Ice4pros Fabrica de Gelo Ltda",
+    "MEXBRA ALIMENTOS LTDA": "Pagcerto Instituicao de Pagamento L",
+    "DE LA CROIX VINHOS": "Geoffroy Alain Marie de La Cro",
+    "FAMIGERADA COMERCIO E EXPORTACAO DE BEBIDAS LTDA": "Pagcerto Instituicao de Pagamento L",
+    "FACUNDO GUERRA RIVERO": "PIX - ENVIADO - 25/08 11:10 ARCOS B RESTAURANTE LTDA",
+    "ANDREIA SANTOS FREITAS DUARTE": "Distribuicoes e Representacoes Dede",
+    "PIS": ["Receita Federal", "Ministerio da Fazenda"],
+    "INSS": ["Receita Federal", "Ministerio da Fazenda"],
+    "ISS": ["Receita Federal", "Municipio de Sao Paulo"],
+    "ICMS": ["Receita Federal", "Ministerio da Fazenda", "Municipio de Sao Paulo", "Estado de Sao Paulo"],
+    "IRRF": ["Receita Federal", "Ministerio da Fazenda"],
+    "FGTS": "CAIXA ECONOMICA FEDERAL",
+    "MUTUO ELAINE": ["TRANSF CC PARA CC PJ TEMPUS FUGIT PARTICIPACOES E. LT", "Tempus"]
 
 }  
 
@@ -32,7 +46,7 @@ def _normalize_text(text):
 
 
 def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, 
-    text_left='Fornecedor', text_right='Descricao_Transacao', exceptions=exceptions, limiar=60):
+    text_left='Fornecedor', text_right='Descricao_Transacao', exceptions=exceptions, limiar=40):
     """
     Faz merge entre df_custos e df_extratos,
     e compara Fornecedor com Descricao_Transacao via fuzzy matching.
@@ -52,24 +66,24 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on,
         suffixes=('_despesa','_extrato')
     )
 
-    def calc_sim(fornecedor, descricao):
-        f = _normalize_text(fornecedor) # vem dos dados
-        d = _normalize_text(descricao) # vem dos dados
+    def calc_sim(row):
+        f = _normalize_text(row[text_left])
+        d = _normalize_text(row[text_right])
 
-        # exceções manuais
-        for k, v in exceptions.items(): # fornecedor,obervacao 
-            if k.lower() in f and v.lower() in d:
-                return 100
-            if v.lower() in f and k.lower() in d:
-                return 100
-            
-        # fuzzy padrão
+        # Exceções manuais
+        for k, vs in exceptions.items():
+            k_norm = _normalize_text(k)
+            for v in (vs if isinstance(vs, list) else [vs]):
+                v_norm = _normalize_text(v)
+                if k_norm in f and v_norm in d:
+                    return 100
+                if v_norm in f and k_norm in d:
+                    return 100
+
+        # Fuzzy padrão
         return fuzz.token_set_ratio(f, d)
 
-    df_tmp['similaridade'] = df_tmp.apply(
-        lambda row: calc_sim(row[text_left], row[text_right]),
-        axis=1
-    )
+    df_tmp['similaridade'] = df_tmp.apply(calc_sim, axis=1)
 
     # só mantém merge se atingir limiar
     extrato_cols = [c for c in df_extratos.columns if c not in df_custos.columns]
@@ -78,17 +92,14 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on,
     return df_tmp
 
 
-def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_parc, df_custos_blueme_com_parc, df_bloqueios, df_extratos_bancarios, conta, item):
+# Exibe correspondência de blueme sem parcelamento, blueme com parcelamento, saidas mutuos e bloqueios com extrato: chamada em 'cria_tabs_contas'
+def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_blueme_com_parc, df_bloqueios, df_saidas_mutuos, df_extratos_bancarios, conta, item):
     if conta == "Outras contas":
         # filtra os extratos
-        df_extratos_outras = df_extratos_bancarios[
-            (df_extratos_bancarios['ID_Conta_Bancaria'].isin(ids_outras))
-            & (df_extratos_bancarios['Tipo_Credito_Debito'] == 'DEBITO')]
+        df_extratos_outras = df_extratos_bancarios[df_extratos_bancarios['ID_Conta_Bancaria'].isin(ids_outras)]
 
-         # Bar Léo - Centro
-        if id_casa == 116:
+        if id_casa == 116: # Bar Léo - Centro (tem valores de DEBITO positivos)
             df_extratos_outras["Valor"] = df_extratos_outras["Valor"].apply(lambda x: -x if x < 0 else x)
-            # df_extratos_outras["Valor"] = df_extratos_outras["Valor"].astype(str).str.replace(".", "", regex=False)
         else:
             df_extratos_outras['Valor'] = df_extratos_outras['Valor'] * (-1)
             
@@ -110,7 +121,7 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             text_left='Fornecedor',
             text_right='Descricao_Transacao',
             exceptions=exceptions,  
-            limiar=60  # ajusta se quiser mais/menos rigor
+            limiar=40  
             )
             
             # Seleciona só colunas mais importantes e reordena
@@ -142,7 +153,7 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             text_left='Fornecedor',
             text_right='Descricao_Transacao',
             exceptions=exceptions,  
-            limiar=60  # ajusta se quiser mais/menos rigor
+            limiar=40  
             )
             
             # Seleciona só colunas mais importantes e reordena
@@ -157,29 +168,68 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             st.dataframe(df_blueme_com_parc_outras_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
             st.divider()
+        
+        elif item == "saidas mutuos":
+            # filtra pela conta de saida
+            df_extratos_contas = df_extratos_bancarios[~df_extratos_bancarios['ID_Conta_Bancaria'].isin(ids_outras)]
+            df_extratos_contas['Valor'] = df_extratos_contas['Valor'] * (-1)
+            df_extratos_contas['Data_Transacao'] = pd.to_datetime(df_extratos_contas['Data_Transacao']).dt.normalize()
+
+            df_saidas_mutuos_outras = df_saidas_mutuos[
+                df_saidas_mutuos['ID_Conta_Saida'].isin(ids_outras) 
+                | df_saidas_mutuos['ID_Conta_Saida'].isna()]  
+
+            df_saidas_mutuos_outras['Data_Mutuo'] = pd.to_datetime(df_saidas_mutuos_outras['Data_Mutuo']).dt.normalize()
+
+
+            # faz o merge para tentar conciliar
+            df_saidas_mutuos_outras = merge_com_fuzzy(
+            df_saidas_mutuos_outras,
+            df_extratos_contas,
+            left_on=['Data_Mutuo', 'Valor'], 
+            right_on=['Data_Transacao', 'Valor'],
+            text_left='Observacoes',
+            text_right='Descricao_Transacao',
+            exceptions=exceptions,  
+            limiar=5
+            )
+
+            # Seleciona só colunas mais importantes e reordena
+            # df_saidas_mutuos_outras = df_saidas_mutuos_outras[["Mutuo_ID", "Data_Mutuo", "ID_Conta_Saida", "Conta_Saida", "Casa_Entrada", "ID_Conta_Entrada", "Conta_Entrada", "Valor", "Observacoes", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]]
+            # nova_ordem = ["Mutuo_ID", "Data_Mutuo", "Valor", "ID_Conta_Saida", "Conta_Saida", "Casa_Entrada", "ID_Conta_Entrada", "Conta_Entrada", "Observacoes", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]
+            # df_saidas_mutuos_outras = df_saidas_mutuos_outras[nova_ordem]
+            # df_saidas_mutuos_outras["Mutuo_ID"] = df_saidas_mutuos_outras["Mutuo_ID"].astype("Int64")
+            # df_saidas_mutuos_outras["ID_Extrato_Bancario"] = df_saidas_mutuos_outras["ID_Extrato_Bancario"].astype("Int64")
+
+            # Estiliza e exibe
+            df_saidas_mutuos_outras_styled = df_saidas_mutuos_outras.style.apply(colorir_linhas(df_saidas_mutuos_outras, 'Mutuo_ID', 'Status_Conf_Document', 'Status_Aprov_Diret'), axis=1)
+            st.dataframe(df_saidas_mutuos_outras_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
+            st.divider()
 
     else:
-        # filtra os extratos
-        id_conta = lista_ids[tab]
-        if id_conta == 151: st.warning('Problemas no Valor do Extrato Bancário')
+        nome_conta = conta
+        if nome_conta == "Bar Léo -  Aurora Térreo - Banco do Brasil": 
+            st.warning('Problemas no Valor do Extrato Bancário')
 
-        df_extratos_conta = df_extratos_bancarios[
-            (df_extratos_bancarios['ID_Conta_Bancaria'] == id_conta)
-            & (df_extratos_bancarios['Tipo_Credito_Debito'] == 'DEBITO')]
+        # filtra os extratos
+        df_extratos_conta = df_extratos_bancarios[df_extratos_bancarios['Nome_Conta_Bancaria'] == nome_conta]
         
-        # Bar Léo - Centro
-        if id_casa == 116:
-            # Multiplica apenas os negativos por -1
+        if id_casa == 116: # Bar Léo - Centro
             df_extratos_conta["Valor"] = df_extratos_conta["Valor"].apply(lambda x: -x if x < 0 else x)
-            # df_extratos_conta["Valor"] = df_extratos_conta["Valor"].astype(str).str.replace(".", "", regex=False)
         else:
             df_extratos_conta['Valor'] = df_extratos_conta['Valor'] * (-1)
         
         df_extratos_conta['Data_Transacao'] = df_extratos_conta['Data_Transacao'].dt.date
 
         if item == "blueme sem parcelamento":
+            if nome_conta == "Arcos - Arcos Bar - Banco do Brasil": 
+                st.warning('Observação: Folha de Pagamento')
+            elif nome_conta == "Bar Brahma - Ypiranga Matriz - Bradesco": 
+                st.warning('Observações do extrato completamente diferentes do fornecedor da despesa')
+
             # filtra as despesas dessas contas
-            df_blueme_sem_parc_conta = df_custos_blueme_sem_parc[df_custos_blueme_sem_parc['ID_Conta_Bancaria'] == id_conta]
+            df_blueme_sem_parc_conta = df_custos_blueme_sem_parc[df_custos_blueme_sem_parc['Conta_Bancaria'] == nome_conta]
             df_blueme_sem_parc_conta['Realizacao_Pgto'] = df_blueme_sem_parc_conta['Realizacao_Pgto'].dt.date
 
             # faz o merge para tentar conciliar
@@ -191,15 +241,15 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             text_left='Fornecedor',
             text_right='Descricao_Transacao',
             exceptions=exceptions,  
-            limiar=60  # ajusta se quiser mais/menos rigor
+            limiar=40 
             )
             
             # Seleciona só colunas mais importantes e reordena
-            df_blueme_sem_parc = df_blueme_sem_parc[["ID_Despesa", "Fornecedor", "Valor", "Realizacao_Pgto", "Forma_Pagamento", "Class_Cont_1", "Class_Cont_2", "Doc_NF", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Conta_Bancaria", "Conta_Bancaria", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]]
-            nova_ordem = ["ID_Conta_Bancaria", "Conta_Bancaria", "ID_Despesa", "Fornecedor", "Valor", "Realizacao_Pgto", "Forma_Pagamento", "Class_Cont_1", "Class_Cont_2", "Doc_NF", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]
-            df_blueme_sem_parc = df_blueme_sem_parc[nova_ordem]
-            df_blueme_sem_parc["ID_Conta_Bancaria"] = df_blueme_sem_parc["ID_Conta_Bancaria"].astype("Int64")
-            df_blueme_sem_parc["ID_Extrato_Bancario"] = df_blueme_sem_parc["ID_Extrato_Bancario"].astype("Int64")
+            # df_blueme_sem_parc = df_blueme_sem_parc[["ID_Despesa", "Fornecedor", "Valor", "Realizacao_Pgto", "Forma_Pagamento", "Class_Cont_1", "Class_Cont_2", "Doc_NF", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Conta_Bancaria", "Conta_Bancaria", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]]
+            # nova_ordem = ["ID_Conta_Bancaria", "Conta_Bancaria", "ID_Despesa", "Fornecedor", "Valor", "Realizacao_Pgto", "Forma_Pagamento", "Class_Cont_1", "Class_Cont_2", "Doc_NF", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]
+            # df_blueme_sem_parc = df_blueme_sem_parc[nova_ordem]
+            # df_blueme_sem_parc["ID_Conta_Bancaria"] = df_blueme_sem_parc["ID_Conta_Bancaria"].astype("Int64")
+            # df_blueme_sem_parc["ID_Extrato_Bancario"] = df_blueme_sem_parc["ID_Extrato_Bancario"].astype("Int64")
 
             # Estiliza a exibe
             df_blueme_sem_parc_styled = df_blueme_sem_parc.style.apply(colorir_linhas(df_blueme_sem_parc, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret'), axis=1)
@@ -209,7 +259,7 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
 
         elif item == "blueme com parcelamento":
             # filtra as despesas dessas contas
-            df_blueme_com_parc_conta = df_custos_blueme_com_parc[df_custos_blueme_com_parc['ID_Conta_Bancaria'] == id_conta]
+            df_blueme_com_parc_conta = df_custos_blueme_com_parc[df_custos_blueme_com_parc['Conta_Bancaria'] == nome_conta]
             df_blueme_com_parc_conta['Realiz_Parcela'] = df_blueme_com_parc_conta['Realiz_Parcela'].dt.date
 
             # faz o merge para tentar conciliar
@@ -221,15 +271,15 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             text_left='Fornecedor',
             text_right='Descricao_Transacao',
             exceptions=exceptions, 
-            limiar=60  # ajusta se quiser mais/menos rigor
+            limiar=40  
             )
             
             # Seleciona só colunas mais importantes e reordena
-            df_blueme_com_parc = df_blueme_com_parc[["ID_Parcela", "ID_Despesa", "Fornecedor", "Qtd_Parcelas", "Num_Parcela", "Valor_Parcela", "Realiz_Parcela", "Forma_Pagamento", "Doc_NF", "Class_Cont_1", "Class_Cont_2", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Conta_Bancaria", "Conta_Bancaria", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]]
-            nova_ordem = ["ID_Conta_Bancaria", "Conta_Bancaria", "ID_Parcela", "ID_Despesa", "Fornecedor", "Qtd_Parcelas", "Num_Parcela", "Valor_Parcela", "Realiz_Parcela", "Forma_Pagamento", "Doc_NF", "Class_Cont_1", "Class_Cont_2", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]
-            df_blueme_com_parc = df_blueme_com_parc[nova_ordem]
-            df_blueme_com_parc["ID_Conta_Bancaria"] = df_blueme_com_parc["ID_Conta_Bancaria"].astype("Int64")
-            df_blueme_com_parc["ID_Extrato_Bancario"] = df_blueme_com_parc["ID_Extrato_Bancario"].astype("Int64")
+            # df_blueme_com_parc = df_blueme_com_parc[["ID_Parcela", "ID_Despesa", "Fornecedor", "Qtd_Parcelas", "Num_Parcela", "Valor_Parcela", "Realiz_Parcela", "Forma_Pagamento", "Doc_NF", "Class_Cont_1", "Class_Cont_2", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Conta_Bancaria", "Conta_Bancaria", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]]
+            # nova_ordem = ["ID_Conta_Bancaria", "Conta_Bancaria", "ID_Parcela", "ID_Despesa", "Fornecedor", "Qtd_Parcelas", "Num_Parcela", "Valor_Parcela", "Realiz_Parcela", "Forma_Pagamento", "Doc_NF", "Class_Cont_1", "Class_Cont_2", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]
+            # df_blueme_com_parc = df_blueme_com_parc[nova_ordem]
+            # df_blueme_com_parc["ID_Conta_Bancaria"] = df_blueme_com_parc["ID_Conta_Bancaria"].astype("Int64")
+            # df_blueme_com_parc["ID_Extrato_Bancario"] = df_blueme_com_parc["ID_Extrato_Bancario"].astype("Int64")
             
             # Estiliza a exibe
             # Em vez de eliminar duplicatas, vou sinalizar que não bateu só com um item do extrato
@@ -241,7 +291,7 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
 
         elif item == "bloqueios":
             # filtra as despesas dessas contas
-            df_bloqueios_conta = df_bloqueios[(df_bloqueios['ID_Conta_Bancaria'] == id_conta)]                
+            df_bloqueios_conta = df_bloqueios[(df_bloqueios['Nome da Conta'] == nome_conta)]                
             df_bloqueios_conta['Data_Transacao'] = df_bloqueios_conta['Data_Transacao'].dt.date
             df_bloqueios_conta['Valor'] = df_bloqueios_conta['Valor'] * (-1)
 
@@ -253,8 +303,8 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             right_on=['ID_Conta_Bancaria', 'Data_Transacao', 'Valor'],
             text_left='Observacao',
             text_right='Descricao_Transacao',
-            exceptions=exceptions,  # mapeamentos manuais
-            limiar=60  # ajusta se quiser mais/menos rigor
+            exceptions=exceptions, 
+            limiar=40  
             )
             
             # Seleciona só colunas mais importantes e reordena
@@ -270,9 +320,41 @@ def itens_por_conta(id_casa, ids_outras, lista_ids, tab, df_custos_blueme_sem_pa
             exibir_legenda("contas")
             st.divider()
 
+        elif item == "saidas mutuos":
+            # filtra pela conta de saida
+            df_saidas_mutuos_conta = df_saidas_mutuos[(df_saidas_mutuos['Conta_Saida'] == nome_conta)]                
+            df_saidas_mutuos_conta['Data_Mutuo'] = df_saidas_mutuos_conta['Data_Mutuo'].dt.date
 
-# Cria uma tab para cada conta bancária da casa
-def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_blueme_sem_parc_formatada, df_custos_blueme_com_parc, df_custos_blueme_com_parc_formatada, df_mutuos_formatada, df_bloqueios, df_extratos_bancarios, df_extratos_bancarios_formatada):
+            # faz o merge para tentar conciliar
+            df_saidas_mutuos_conta = merge_com_fuzzy(
+            df_saidas_mutuos_conta,
+            df_extratos_conta,
+            left_on=['ID_Conta_Saida', 'Data_Mutuo', 'Valor'], 
+            right_on=['ID_Conta_Bancaria', 'Data_Transacao', 'Valor'],
+            text_left='Observacoes',
+            text_right='Descricao_Transacao',
+            exceptions=exceptions,  
+            limiar=40  
+            )
+            
+            # Seleciona só colunas mais importantes e reordena
+            df_saidas_mutuos_conta = df_saidas_mutuos_conta[["Mutuo_ID", "Data_Mutuo", "ID_Conta_Saida", "Conta_Saida", "Casa_Entrada", "ID_Conta_Entrada", "Conta_Entrada", "Valor", "Observacoes", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]]
+            nova_ordem = ["Mutuo_ID", "Data_Mutuo", "Valor", "ID_Conta_Saida", "Conta_Saida", "Casa_Entrada", "ID_Conta_Entrada", "Conta_Entrada", "Observacoes", "ID_Extrato_Bancario", "Data_Transacao", "Descricao_Transacao"]
+            df_saidas_mutuos_conta = df_saidas_mutuos_conta[nova_ordem]
+            df_saidas_mutuos_conta["Mutuo_ID"] = df_saidas_mutuos_conta["Mutuo_ID"].astype("Int64")
+            df_saidas_mutuos_conta["ID_Conta_Saida"] = df_saidas_mutuos_conta["ID_Conta_Saida"].astype("Int64")
+            df_saidas_mutuos_conta["ID_Conta_Entrada"] = df_saidas_mutuos_conta["ID_Conta_Entrada"].astype("Int64")
+            df_saidas_mutuos_conta["ID_Extrato_Bancario"] = df_saidas_mutuos_conta["ID_Extrato_Bancario"].astype("Int64")
+
+            # Estiliza e exibe
+            df_saidas_mutuos_conta_styled = df_saidas_mutuos_conta.style.apply(colorir_linhas(df_saidas_mutuos_conta, 'Mutuo_ID', 'Status_Conf_Document', 'Status_Aprov_Diret'), axis=1)
+            st.dataframe(df_saidas_mutuos_conta_styled, use_container_width=True, hide_index=True)
+            exibir_legenda("contas")
+            st.divider()
+
+
+# Cria uma tab para cada conta bancária da casa: chamada em 'conciliacao_inicial' para Contas a Pagar e Contas a Receber
+def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_blueme_sem_parc_formatada, df_custos_blueme_com_parc, df_custos_blueme_com_parc_formatada, df_mutuos, df_mutuos_formatada, df_bloqueios, df_extratos_bancarios, df_extratos_bancarios_formatada):
     # Mapeamento nome → ID
     mapeamento_contas = dict(zip(df_contas["Nome da Conta"], df_contas["ID_Conta"]))
 
@@ -355,13 +437,6 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
         tabs = st.tabs(lista_tabs)
 
         for tab, conta_fmt in enumerate(lista_tabs):
-            # if id_casa == 116: # Bar Léo - Centro
-                # Removendo o ponto mantendo como string
-                # df_custos_blueme_sem_parc["Valor"] = df_custos_blueme_sem_parc["Valor"].astype(str).str.replace(".", "", regex=False)
-                # df_custos_blueme_com_parc["Valor_Parcela"] = df_custos_blueme_com_parc["Valor_Parcela"].astype(str).str.replace(".", "", regex=False)
-                # df_bloqueios["Valor"] = df_bloqueios["Valor"].astype(str).str.replace(".", "", regex=False)
-                # df_custos_blueme_sem_parc["Valor"] = df_custos_blueme_sem_parc["Valor"].str.replace(".", "", regex=False)
-
             with tabs[tab]:
                 # st.subheader(conta_fmt)
                 if conta_fmt == "Todas as contas":
@@ -389,10 +464,10 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                     itens_por_conta(
                         id_casa,
                         ids_outras, 
-                        lista_ids, tab, 
                         df_custos_blueme_sem_parc, 
                         df_custos_blueme_com_parc, 
                         df_bloqueios,
+                        df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
                         "blueme sem parcelamento")
@@ -402,28 +477,38 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                     itens_por_conta(
                         id_casa,
                         ids_outras, 
-                        lista_ids, 
-                        tab, 
                         df_custos_blueme_sem_parc, 
                         df_custos_blueme_com_parc, 
                         df_bloqueios,
+                        df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
                         "blueme com parcelamento")
                     
                     # Saídas Mútuos #
+                    # Saídas Mútuos #
+                    st.subheader('Saídas Mútuos')
+                    itens_por_conta(
+                        id_casa,
+                        ids_outras,
+                        df_custos_blueme_sem_parc, 
+                        df_custos_blueme_com_parc,
+                        df_bloqueios, 
+                        df_mutuos,
+                        df_extratos_bancarios, 
+                        conta_fmt, 
+                        "saidas mutuos")
 
                 else:
                     # Despesas blueme sem parcelamento #
                     st.subheader('Despesas BlueMe Sem Parcelamento')
                     itens_por_conta(
                         id_casa,
-                        None, 
-                        lista_ids,
-                        tab, 
+                        None,  
                         df_custos_blueme_sem_parc, 
                         df_custos_blueme_com_parc,
                         df_bloqueios,
+                        df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
                         "blueme sem parcelamento"
@@ -434,11 +519,10 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                     itens_por_conta(
                         id_casa,
                         None, 
-                        lista_ids, 
-                        tab, 
                         df_custos_blueme_sem_parc,
                         df_custos_blueme_com_parc, 
                         df_bloqueios,
+                        df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
                         "blueme com parcelamento"
@@ -448,20 +532,31 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                     st.subheader('Bloqueios Judiciais')
                     itens_por_conta(
                         id_casa,
-                        None, 
-                        lista_ids, 
-                        tab, 
+                        None,
                         df_custos_blueme_sem_parc, 
                         df_custos_blueme_com_parc,
                         df_bloqueios, 
+                        df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
                         "bloqueios")
                     
                     # Saídas Mútuos #
+                    st.subheader('Saídas Mútuos')
+                    itens_por_conta(
+                        id_casa,
+                        None,
+                        df_custos_blueme_sem_parc, 
+                        df_custos_blueme_com_parc,
+                        df_bloqueios, 
+                        df_mutuos,
+                        df_extratos_bancarios, 
+                        conta_fmt, 
+                        "saidas mutuos")
 
     else: 
         st.warning('Nada para exibir')
+
 
 # Exibe itens do CONTAS A PAGAR em TODAS AS CONTAS
 def exibe_tabelas_contas_a_pagar(id_casa, df_custos_blueme_sem_parcelam_formatada, df_custos_blueme_com_parcelam_formatada, df_mutuos_formatada, df_bloqueios_judiciais_filtrada, df_extratos_bancarios_formatada):
@@ -489,8 +584,3 @@ def exibe_tabelas_contas_a_pagar(id_casa, df_custos_blueme_sem_parcelam_formatad
     st.dataframe(df_extratos_bancarios_formatada, use_container_width=True, hide_index=True)
     st.divider()
 
-    # st.subheader("Contas Bancárias")
-    # df_contas_filtrada = df_contas[df_contas['ID_Casa'] == id_casa]
-    # st.dataframe(df_contas_filtrada, use_container_width=True, hide_index=True)
-    # st.divider()
-    # lista_contas_casa = df_contas_filtrada['Nome da Conta'].tolist()
