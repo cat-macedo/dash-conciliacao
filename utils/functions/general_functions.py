@@ -71,41 +71,30 @@ def colorir_conciliacao(row):
         return ['background-color: #e6937e; color: black;'] * len(row)
     else:
         return [''] * len(row)  # Conciliados não pinta
-    
-#
-# def colorir_consta_no_extrato(row):
-#     if pd.isna(row['ID_Extrato_Bancario']):
-#         return ['background-color: #e6937e; color: black;'] * len(row)
-#     else:
-#         return [''] * len(row)
-    
-# # 
-# def colorir_duplicados(df, coluna):
-#     def aplicar_linha(row):
-#         # Verifica se o valor aparece mais de uma vez
-#         if df[coluna].duplicated(keep=False)[row.name]:
-#             return ['background-color: yellow'] * len(row)
-#         else:
-#             return [''] * len(row)
-#     return aplicar_linha
+
 
 def colorir_linhas(df, coluna_duplicados, coluna_doc, coluna_aprov):
     def aplicar_linha(row):
-        estilos = [''] * len(row)  
+        estilos = [''] * len(row)
 
-        # Vermelho se não consta no extrato
+        # prioridade: extrato ausente > duplicado > não aprovado
         if pd.isna(row['ID_Extrato_Bancario']):
             estilos = ['background-color: #e6937e; color: black;'] * len(row)
 
-        # Amarelo se duplicado (sobrescreve se for duplicado)
-        elif df[coluna_duplicados].duplicated(keep=False)[row.name]:
+        elif df[coluna_duplicados].duplicated(keep=False).iloc[row.name]:
             estilos = ['background-color: #ffffae; color: black;'] * len(row)
 
-        # Laranja se não aprovado
-        if coluna_duplicados != 'ID_Bloqueio' and coluna_duplicados != 'Mutuo_ID':
-            if pd.isna(row[coluna_doc]) or pd.isna(row[coluna_aprov]):
-                estilos = ['background-color: #ffac34; color: black;'] * len(row)
-        
+        elif df['ID_Extrato_Bancario'].duplicated(keep=False).iloc[row.name]:
+            estilos = ['background-color: #bfbfbf; color: black;'] * len(row)
+
+        # só aplica laranja se não cair nas regras acima
+        if (
+            all(s == '' for s in estilos) and
+            coluna_duplicados not in ['ID_Bloqueio', 'Mutuo_ID'] and
+            (pd.isna(row[coluna_doc]) or pd.isna(row[coluna_aprov]))
+        ):
+            estilos = ['background-color: #ffac34; color: black;'] * len(row)
+
         return estilos
     return aplicar_linha
 
@@ -129,10 +118,12 @@ def exibir_legenda(parametro):
        st.markdown(
             f"""
             <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px;">
-                <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 8px;"></div>
-                <span style="margin-right: 15px; font-size: 14px;">Encontrou mais de um correspondente no extrato bancário (correspondência incorreta)</span>
                 <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 8px;"></div>
                 <span style="margin-right: 15px; font-size: 14px;">{span}</span>
+                <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 8px;"></div>
+                <span style="margin-right: 15px; font-size: 14px;">Mesma despesa mapeada com mais de um item no extrato bancário (correspondência incorreta)</span>
+                <div style="width: 15px; height: 15px; background-color: #bfbfbf; border: 1px solid #ccc; margin-right: 8px;"></div>
+                <span style="margin-right: 15px; font-size: 14px;">Despesas diferentes mapeadas com um mesmo item no extrato bancário (correspondência incorreta)</span>
                 <div style="width: 15px; height: 15px; background-color: #ffac34; border: 1px solid #ccc; margin-right: 8px;"></div>
                 <span style="margin-right: 15px; font-size: 14px;">Documentação não aprovada</span>
             </div>
@@ -218,6 +209,7 @@ def export_to_excel(df, sheet_name, excel_filename):
   wb.save(excel_filename)
 
 
+# Funções - Fluxo de Caixa Futuro
 def component_plotDataframe_aggrid(
     df: pd.DataFrame,
     name: str,

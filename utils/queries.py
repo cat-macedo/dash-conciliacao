@@ -473,16 +473,17 @@ GROUP BY te.ID, trec2.ID, YEAR(vpa.DATA_RECEBIMENTO), MONTH(vpa.DATA_RECEBIMENTO
 
 GET_EVENTOS = """
 SELECT tep.ID AS 'ID_Evento',
-		tep.NOME_EVENTO AS 'Nome Evento',
+		tep.NOME_EVENTO AS 'Nome_Evento',
 		tep.FK_EMPRESA AS 'ID_Casa',
 		te.NOME_FANTASIA AS 'Casa',
 		tpep.ID AS 'ID_Parcela',
-		tpep.VALOR_PARCELA AS 'Valor Parcela',
-		tpep.DATA_VENCIMENTO_PARCELA AS 'Vencimento Parcela',
-		tpep.DATA_RECEBIMENTO_PARCELA AS 'Recebimento Parcela',
-		tsp.DESCRICAO AS 'Status Pgto',
-		tfp.DESCRICAO AS 'Forma Pgto',
-		tcb.NOME_DA_CONTA AS 'Conta Bancaria',
+		tpep.VALOR_PARCELA AS 'Valor_Parcela',
+		tpep.DATA_VENCIMENTO_PARCELA AS 'Vencimento_Parcela',
+		tpep.DATA_RECEBIMENTO_PARCELA AS 'Recebimento_Parcela',
+		tsp.DESCRICAO AS 'Status_Pgto',
+		tfp.DESCRICAO AS 'Forma_Pgto',
+    tcb.ID as 'ID_Conta_Bancaria',
+		tcb.NOME_DA_CONTA AS 'Conta_Bancaria',
 		tep.OBSERVACOES AS 'Observacoes'
 FROM T_EVENTOS_PRICELESS tep
 LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)

@@ -10,4 +10,4 @@ datetime
 plotly==6.1.2
 streamlit-aggrid
 streamlit-echarts
-
+rapidfuzz

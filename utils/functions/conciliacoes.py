@@ -81,7 +81,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
 
     ## Eventos
     df_eventos = st.session_state["df_eventos"]
-    df_eventos_filtrada, df_eventos_formatada = filtra_formata_df(df_eventos, "Recebimento Parcela", id_casa, start_date, end_date)
+    df_eventos_filtrada, df_eventos_formatada = filtra_formata_df(df_eventos, "Recebimento_Parcela", id_casa, start_date, end_date)
 
     ## Contas Bancárias
     df_contas = st.session_state["df_contas_bancarias"]
@@ -178,7 +178,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         # Eventos (desmembrar de Receitas Extraordinárias) #
         if 'Eventos' not in df_conciliacao.columns:
             df_conciliacao['Eventos'] = somar_por_data(
-                df_eventos_filtrada, "Recebimento Parcela", "Valor Parcela", datas
+                df_eventos_filtrada, "Recebimento_Parcela", "Valor_Parcela", datas
             )
 
         # Entradas Mutuos #
@@ -301,6 +301,9 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
 
             sheet_name_view_parc_agrup = 'view_parc_agrup'
             export_to_excel(df_parc_receit_extr_filtrada, sheet_name_view_parc_agrup, excel_filename)
+
+            sheet_name_eventos = 'df_eventos'
+            export_to_excel(df_eventos_filtrada, sheet_name_eventos, excel_filename)
 
             sheet_name_custos_blueme_sem_parcelamento = 'df_blueme_sem_parcelamento'
             export_to_excel(df_custos_blueme_sem_parcelam_filtrada, sheet_name_custos_blueme_sem_parcelamento, excel_filename)
