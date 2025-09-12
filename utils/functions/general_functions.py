@@ -4,14 +4,15 @@ import numpy as np
 from pandas.api.types import is_numeric_dtype
 from utils.queries import *
 from utils.user import *
-from workalendar.america import Brazil
 import openpyxl
 import os
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
-from streamlit_echarts import st_echarts
 from st_aggrid.shared import StAggridTheme
 import streamlit.components.v1 as components
+from rapidfuzz import fuzz
+import re
+from utils.constants.exceptions_map import *
 
 
 # Personaliza menu lateral
@@ -81,10 +82,10 @@ def colorir_linhas(df, coluna_duplicados, coluna_doc, coluna_aprov):
         if pd.isna(row['ID_Extrato_Bancario']):
             estilos = ['background-color: #e6937e; color: black;'] * len(row)
 
-        elif df[coluna_duplicados].duplicated(keep=False).iloc[row.name]:
+        elif df[coluna_duplicados].value_counts().get(row[coluna_duplicados], 0) > 1:
             estilos = ['background-color: #ffffae; color: black;'] * len(row)
 
-        elif df['ID_Extrato_Bancario'].duplicated(keep=False).iloc[row.name]:
+        elif df['ID_Extrato_Bancario'].value_counts().get(row['ID_Extrato_Bancario'], 0) > 1:
             estilos = ['background-color: #bfbfbf; color: black;'] * len(row)
 
         # só aplica laranja se não cair nas regras acima
@@ -114,7 +115,7 @@ def exibir_legenda(parametro):
         )
 
     elif parametro == 'contas':
-       span = 'Despesa não consta no extrato bancário'
+       span = 'Despesa não encontrada no extrato bancário'
        st.markdown(
             f"""
             <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px;">
@@ -184,6 +185,81 @@ def valores_labels_formatados(lista_valores):
         for v, lbl in zip(lista_valores, labels)
     ]
     return lista_valores_formatados
+
+
+def _normalize_text(text):
+    if not isinstance(text, str):
+        return ""
+    text = text.lower().strip()               # remove espaços no começo/fim
+    text = re.sub(r"[-–—]", "-", text)        # normaliza todos os tipos de traço para "-"
+    text = re.sub(r"\s+", " ", text)          # remove múltiplos espaços
+    return text
+
+
+def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, 
+    text_left='Fornecedor', text_right='Descricao_Transacao', exceptions=exceptions, limiar=40):
+    """
+    Faz merge entre df_custos e df_extratos,
+    e compara Fornecedor com Descricao_Transacao via fuzzy matching.
+    exceptions = dict com pares manuais
+    limiar = pontuação mínima de similaridade (0-100)
+    """
+    
+    # if not isinstance(exceptions, dict):
+    #     exceptions = {}
+
+    # merge 
+    df_tmp = df_custos.merge(
+        df_extratos, 
+        left_on=left_on,
+        right_on=right_on,
+        how='left',
+        suffixes=('_despesa','_extrato')
+    )
+
+    def calc_sim(row):
+        f = _normalize_text(row[text_left])
+        d = _normalize_text(row[text_right])
+
+        # Exceções manuais
+        for k, vs in exceptions.items():
+            k_norm = _normalize_text(k)
+            for v in (vs if isinstance(vs, list) else [vs]):
+                v_norm = _normalize_text(v)
+                if k_norm in f and v_norm in d:
+                    return 100
+                if v_norm in f and k_norm in d:
+                    return 100
+
+        # Fuzzy padrão
+        return fuzz.token_set_ratio(f, d)
+
+    df_tmp['similaridade'] = df_tmp.apply(calc_sim, axis=1)
+
+    # só mantém merge se atingir limiar
+    extrato_cols = [c for c in df_extratos.columns if c not in df_custos.columns]
+    df_tmp.loc[df_tmp['similaridade'] < limiar, extrato_cols] = None
+
+    # mantém apenas o melhor match por despesa
+    if 'ID_Despesa' in df_tmp.columns:
+        df_tmp = (
+            df_tmp.sort_values(by='similaridade', ascending=False)
+                  .drop_duplicates(subset=['ID_Despesa'], keep='first')
+        )
+
+    # remove duplicatas de despesas que não encontraram correspondência no extrato
+    mask_sem_extrato = df_tmp['ID_Extrato_Bancario'].isna()
+    if 'ID_Despesa' in df_tmp.columns:  
+        df_tmp_sem_extrato = (
+            df_tmp[mask_sem_extrato]
+            .drop_duplicates(subset=['ID_Despesa'])
+        )
+        df_tmp = pd.concat([
+            df_tmp[~mask_sem_extrato],
+            df_tmp_sem_extrato
+        ], ignore_index=True)
+
+    return df_tmp
 
 
 # Funções excel

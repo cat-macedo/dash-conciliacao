@@ -5,7 +5,6 @@ import calendar
 from utils.functions.general_functions import *
 from utils.functions.conciliacoes import *
 from utils.queries import *
-from workalendar.america import Brazil
 
 
 st.set_page_config(
