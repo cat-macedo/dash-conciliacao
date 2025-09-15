@@ -74,27 +74,39 @@ def colorir_conciliacao(row):
         return [''] * len(row)  # Conciliados não pinta
 
 
-def colorir_linhas(df, coluna_duplicados, coluna_doc, coluna_aprov):
+def colorir_linhas(df, coluna_duplicados, coluna_doc, coluna_aprov, principal):
     def aplicar_linha(row):
         estilos = [''] * len(row)
 
-        # prioridade: extrato ausente > duplicado > não aprovado
-        if pd.isna(row['ID_Extrato_Bancario']):
-            estilos = ['background-color: #e6937e; color: black;'] * len(row)
+        if principal == 'despesa':
+            # prioridade: extrato ausente > duplicado > não aprovado
+            if pd.isna(row['ID_Extrato_Bancario']): # vermelho
+                estilos = ['background-color: #e6937e; color: black;'] * len(row)
 
-        elif df[coluna_duplicados].value_counts().get(row[coluna_duplicados], 0) > 1:
-            estilos = ['background-color: #ffffae; color: black;'] * len(row)
+            elif df[coluna_duplicados].value_counts().get(row[coluna_duplicados], 0) > 1: # amarelo
+                estilos = ['background-color: #ffffae; color: black;'] * len(row)
 
-        elif df['ID_Extrato_Bancario'].value_counts().get(row['ID_Extrato_Bancario'], 0) > 1:
-            estilos = ['background-color: #bfbfbf; color: black;'] * len(row)
+            elif df['ID_Extrato_Bancario'].value_counts().get(row['ID_Extrato_Bancario'], 0) > 1: # cinza
+                estilos = ['background-color: #bfbfbf; color: black;'] * len(row)
 
-        # só aplica laranja se não cair nas regras acima
-        if (
-            all(s == '' for s in estilos) and
-            coluna_duplicados not in ['ID_Bloqueio', 'Mutuo_ID'] and
-            (pd.isna(row[coluna_doc]) or pd.isna(row[coluna_aprov]))
-        ):
-            estilos = ['background-color: #ffac34; color: black;'] * len(row)
+            # só aplica laranja se não cair nas regras acima
+            if (
+                all(s == '' for s in estilos) and
+                coluna_duplicados not in ['ID_Bloqueio', 'Mutuo_ID'] and
+                (pd.isna(row[coluna_doc]) or pd.isna(row[coluna_aprov]))
+            ):
+                estilos = ['background-color: #ffac34; color: black;'] * len(row)
+
+        elif principal == 'extrato':
+           # prioridade: despesa ausente > duplicado > não aprovado
+            if pd.isna(row['ID_Despesa']): # vermelho
+                estilos = ['background-color: #e6937e; color: black;'] * len(row)
+
+            elif df['ID_Despesa'].value_counts().get(row['ID_Despesa'], 0) > 1: # amarelo
+                estilos = ['background-color: #ffffae; color: black;'] * len(row)
+
+            elif df['ID_Extrato_Bancario'].value_counts().get(row['ID_Extrato_Bancario'], 0) > 1: # cinza
+                estilos = ['background-color: #bfbfbf; color: black;'] * len(row)
 
         return estilos
     return aplicar_linha
@@ -115,18 +127,32 @@ def exibir_legenda(parametro):
         )
 
     elif parametro == 'contas':
-       span = 'Despesa não encontrada no extrato bancário'
        st.markdown(
             f"""
             <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px;">
                 <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 8px;"></div>
-                <span style="margin-right: 15px; font-size: 14px;">{span}</span>
+                <span style="margin-right: 15px; font-size: 14px;">Despesa não encontrada no extrato bancário</span>
                 <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 8px;"></div>
                 <span style="margin-right: 15px; font-size: 14px;">Mesma despesa mapeada com mais de um item no extrato bancário (correspondência incorreta)</span>
                 <div style="width: 15px; height: 15px; background-color: #bfbfbf; border: 1px solid #ccc; margin-right: 8px;"></div>
                 <span style="margin-right: 15px; font-size: 14px;">Despesas diferentes mapeadas com um mesmo item no extrato bancário (correspondência incorreta)</span>
                 <div style="width: 15px; height: 15px; background-color: #ffac34; border: 1px solid #ccc; margin-right: 8px;"></div>
                 <span style="margin-right: 15px; font-size: 14px;">Documentação não aprovada</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+       
+    elif parametro == 'extrato':
+        st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px;">
+                <div style="width: 15px; height: 15px; background-color: #e6937e; border: 1px solid #ccc; margin-right: 8px;"></div>
+                <span style="margin-right: 15px; font-size: 14px;">Item do extrato sem despesa correspondente</span>
+                <div style="width: 15px; height: 15px; background-color: #ffffae; border: 1px solid #ccc; margin-right: 8px;"></div>
+                <span style="margin-right: 15px; font-size: 14px;">Mesma despesa mapeada com mais de um item no extrato bancário (correspondência incorreta)</span>
+                <div style="width: 15px; height: 15px; background-color: #bfbfbf; border: 1px solid #ccc; margin-right: 8px;"></div>
+                <span style="margin-right: 15px; font-size: 14px;">Despesas diferentes mapeadas com um mesmo item no extrato bancário (correspondência incorreta)</span>
             </div>
             """,
             unsafe_allow_html=True
@@ -196,7 +222,7 @@ def _normalize_text(text):
     return text
 
 
-def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, 
+def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, principal,
     text_left='Fornecedor', text_right='Descricao_Transacao', exceptions=exceptions, limiar=40):
     """
     Faz merge entre df_custos e df_extratos,
@@ -205,9 +231,6 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on,
     limiar = pontuação mínima de similaridade (0-100)
     """
     
-    # if not isinstance(exceptions, dict):
-    #     exceptions = {}
-
     # merge 
     df_tmp = df_custos.merge(
         df_extratos, 
@@ -230,6 +253,8 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on,
                     return 100
                 if v_norm in f and k_norm in d:
                     return 100
+                if f == "" or (d == "" or d == 'mutuo'):
+                    return 100
 
         # Fuzzy padrão
         return fuzz.token_set_ratio(f, d)
@@ -240,24 +265,45 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on,
     extrato_cols = [c for c in df_extratos.columns if c not in df_custos.columns]
     df_tmp.loc[df_tmp['similaridade'] < limiar, extrato_cols] = None
 
-    # mantém apenas o melhor match por despesa
-    if 'ID_Despesa' in df_tmp.columns:
-        df_tmp = (
-            df_tmp.sort_values(by='similaridade', ascending=False)
-                  .drop_duplicates(subset=['ID_Despesa'], keep='first')
-        )
+    if principal == 'despesa':
+        # mantém apenas o melhor match por despesa
+        if 'ID_Despesa' in df_tmp.columns:
+            df_tmp = (
+                df_tmp.sort_values(by='similaridade', ascending=False)
+                    .drop_duplicates(subset=['ID_Despesa'], keep='first')
+            )
 
-    # remove duplicatas de despesas que não encontraram correspondência no extrato
-    mask_sem_extrato = df_tmp['ID_Extrato_Bancario'].isna()
-    if 'ID_Despesa' in df_tmp.columns:  
-        df_tmp_sem_extrato = (
-            df_tmp[mask_sem_extrato]
-            .drop_duplicates(subset=['ID_Despesa'])
-        )
-        df_tmp = pd.concat([
-            df_tmp[~mask_sem_extrato],
-            df_tmp_sem_extrato
-        ], ignore_index=True)
+        # remove duplicatas de despesas que não encontraram correspondência no extrato
+        mask_sem_extrato = df_tmp['ID_Extrato_Bancario'].isna()
+        if 'ID_Despesa' in df_tmp.columns:  
+            df_tmp_sem_extrato = (
+                df_tmp[mask_sem_extrato]
+                .drop_duplicates(subset=['ID_Despesa'])
+            )
+            df_tmp = pd.concat([
+                df_tmp[~mask_sem_extrato],
+                df_tmp_sem_extrato
+            ], ignore_index=True)
+    
+    elif principal == 'extrato':
+       # mantém apenas o melhor match por extrato
+        if 'ID_Extrato_Bancario' in df_tmp.columns:
+            df_tmp = (
+                df_tmp.sort_values(by='similaridade', ascending=False)
+                    .drop_duplicates(subset=['ID_Extrato_Bancario'], keep='first')
+            )
+
+        # remove duplicatas do extrato que não encontraram correspondência com alguma despesa
+        # mask_sem_extrato = df_tmp['ID_Despesa'].isna()
+        # if 'ID_Extrato_Bancario' in df_tmp.columns:  
+        #     df_tmp_sem_extrato = (
+        #         df_tmp[mask_sem_extrato]
+        #         .drop_duplicates(subset=['ID_Extrato_Bancario'])
+        #     )
+        #     df_tmp = pd.concat([
+        #         df_tmp[~mask_sem_extrato],
+        #         df_tmp_sem_extrato
+        #     ], ignore_index=True)
 
     return df_tmp
 
