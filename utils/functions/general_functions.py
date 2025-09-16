@@ -253,8 +253,9 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, principal,
                     return 100
                 if v_norm in f and k_norm in d:
                     return 100
-                if f == "" or (d == "" or d == 'mutuo'):
-                    return 100
+                # Regra: se a despesa não tiver descrição, aceita só Data + Valor
+                if (f != "" and d == ""):
+                    return 100   
 
         # Fuzzy padrão
         return fuzz.token_set_ratio(f, d)
