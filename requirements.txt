@@ -6,6 +6,7 @@ streamlit
 mysql-connector-python 
 workalendar 
 openpyxl 
+datetime
 plotly==6.1.2 
 streamlit-aggrid 
 streamlit-echarts 
