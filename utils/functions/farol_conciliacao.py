@@ -5,6 +5,7 @@ from utils.functions.general_functions import *
 from utils.functions.conciliacoes import *
 from utils.functions.farol_conciliacao import *
 from utils.queries import *
+from streamlit_echarts import st_echarts
 
 ano_atual = datetime.now().year
 
@@ -45,7 +46,7 @@ def conciliacao_casa(df, casa, datas_completas):
     df_eventos_farol = df_eventos[df_eventos['Casa'] == casa]
     if 'Eventos' not in df_copia.columns:
         df_copia['Eventos'] = somar_por_data(
-            df_eventos_farol, "Recebimento Parcela", "Valor Parcela", datas_completas
+            df_eventos_farol, "Recebimento_Parcela", "Valor_Parcela", datas_completas
         )
 
     # Entradas Mutuos #
