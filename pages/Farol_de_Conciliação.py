@@ -206,7 +206,7 @@ df_farol_conciliacao['Casa'] = casas_validas
 df_farol_conciliacao = df_farol_conciliacao_mes(lista_casas_mes, df_farol_conciliacao, ano_farol, mes_atual)
 
 # Pinta as células de acordo com a porcentagem
-df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(
+df_farol_conciliacao_estilo = df_farol_conciliacao.style.map(
     lambda val: estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol)
     )
 
