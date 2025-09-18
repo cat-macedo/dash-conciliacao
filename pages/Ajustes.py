@@ -5,7 +5,6 @@ from utils.functions.ajustes import *
 from utils.queries import *
 from streamlit_echarts import st_echarts
 from datetime import datetime
-# from decimal import Decimal
 
 
 st.set_page_config(
@@ -25,13 +24,14 @@ config_sidebar()
 st.title(":material/instant_mix: Ajustes")
 st.divider()
 
+# Recuperando dados
+df_casas = GET_CASAS()
 
 # Filtrando por casa e ano
 col1, col2 = st.columns(2)
 
 # Seletor de casa
 with col1: 
-  df_casas = st.session_state["df_casas"]
   casas = df_casas['Casa'].tolist()
 
   casas = ["Todas as casas" if c == "All bar" else c for c in casas]
@@ -134,4 +134,3 @@ with st.container(border=True):
       grafico_total_ajustes_mes(df_ajustes_filtrado, lista_ajustes_pos_mes_fmt, lista_ajustes_neg_mes_fmt)
       
   
-

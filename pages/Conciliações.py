@@ -24,6 +24,8 @@ config_sidebar()
 st.title(":material/money_bag: Conciliação FB")
 st.divider()
 
+# Recuperando dados
+df_casas = GET_CASAS()
 
 # Filtrando Data
 today = datetime.now()
@@ -62,7 +64,6 @@ if start_date > end_date:
 
 else:
     # Filtrando casas
-    df_casas = st.session_state["df_casas"]
     casas = df_casas['Casa'].tolist()
     
     # Troca o valor na lista
@@ -93,5 +94,3 @@ else:
         with tab3: # Exibe apenas itens do Contas a Receber
             conciliacao_inicial(id_casa, casa, start_date, end_date, "Contas a Receber")
 
-
-    
