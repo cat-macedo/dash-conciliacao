@@ -12,7 +12,8 @@ from st_aggrid.shared import StAggridTheme
 import streamlit.components.v1 as components
 from rapidfuzz import fuzz
 import re
-from utils.constants.exceptions_map import *
+from utils.constants.general_constants import *
+import io
 
 
 # Personaliza menu lateral
@@ -307,6 +308,29 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, principal,
         #     ], ignore_index=True)
 
     return df_tmp
+
+
+# Componente: botão exportar df em excel
+def button_download(df, atributo, file_name, key):
+    df_copia = df.copy()
+    if atributo != 'ID_Despesa':
+        df_copia["Despesa_Consta_Extrato"] = np.where(df_copia[atributo].isna(), "Não", "Sim")
+    else:
+        df_copia["Despesa_Correspondente"] = np.where(df_copia[atributo].isna(), "Não", "Sim")
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_copia.to_excel(writer, index=False, sheet_name=file_name)
+    excel_data = output.getvalue()
+
+    st.download_button(
+        label="Baixar Excel",
+        data=excel_data,
+        file_name=f"{file_name}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        icon=":material/download:",
+        key=key
+    )
 
 
 # Funções excel

@@ -1,3 +1,24 @@
+casas_validas = ['All bar', 
+                 'Arcos', 
+                 'Bar Brahma - Centro', 
+                 'Bar Brahma - Granja', 
+                 'Bar Brahma Paulista', 
+                 'Bar Léo - Centro', 
+                 'Blue Note - São Paulo', 
+                 'Blue Note SP (Novo)', 
+                 'Edificio Rolim', 
+                 'Escritório Fabrica de Bares', 
+                 'Girondino ', 
+                 'Girondino - CCBB', 
+                 'Jacaré', 
+                 'Love Cabaret', 
+                 'Orfeu', 
+                 'Priceless', 
+                 'Riviera Bar', 
+                 'Sanduiche comunicação LTDA ', 
+                 'Tempus Fugit  Ltda ', 
+                 'Ultra Evil Premium Ltda ']
+
 # Mapeamentos manuais: fornecedor da despesa:descrição do extrato
 exceptions={
     "emporio mel": ["cia do whisky", "PAGAMENTO DE BOLETO - CIA DO WHISKY"], 

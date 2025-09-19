@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import mysql.connector
+from utils.constants.general_constants import casas_validas
 
-casas_validas = ['All bar', 'Escritório Fabrica de Bares', 'Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ']
 
 def mysql_connection_fb():
   mysql_config = st.secrets["mysql_fb"]
