@@ -41,7 +41,7 @@ def show_login_page():
     </style>
     """, unsafe_allow_html=True)
     
-    st.title(":material/money_bag: DashBoard - Conciliação FB")
+    st.title(":moneybag: Conciliação Financeira - FB")
     st.write("")
 
     with st.container(border=True):

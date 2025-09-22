@@ -21,9 +21,9 @@ def config_sidebar():
   if st.session_state["loggedIn"]:
     with st.sidebar:
         st.title("Menu")
-        st.page_link("pages/Conciliações.py", label=":material/money_bag: Conciliações")
-        st.page_link("pages/Farol_de_Conciliação.py", label="  ↳ :material/finance: Farol de Conciliação")
-        st.page_link("pages/Ajustes.py", label="  ↳ :material/instant_mix: Ajustes")
+        st.page_link("pages/Conciliações.py", label=":material/money_bag: Conciliação por casa")
+        st.page_link("pages/Farol_de_Conciliação.py", label=":material/finance: Farol de Conciliação")
+        st.page_link("pages/Ajustes.py", label=":material/instant_mix: Ajustes")
         st.write("")
         st.page_link("pages/Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
         st.write("")

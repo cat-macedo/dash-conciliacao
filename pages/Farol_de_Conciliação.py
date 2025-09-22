@@ -8,8 +8,9 @@ from utils.functions.conciliacoes import *
 from utils.functions.farol_conciliacao import *
 from utils.queries import *
 
-casas_validas = [c for c in casas_validas if c != "All bar"]
 
+casas_validas = [c for c in casas_validas if c != "All bar"]
+nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 st.set_page_config(
     page_title="Conciliação FB - Farol",
@@ -61,27 +62,30 @@ df_conciliacao_farol = pd.DataFrame()
 df_conciliacao_farol['Data'] = datas_completas
 
 # Calcula tabela de conciliação (2024 -- atual) de cada casa
-df_conciliacao_arcos = conciliacao_casa(df_conciliacao_farol, "Arcos", datas_completas)
-df_conciliacao_b_centro = conciliacao_casa(df_conciliacao_farol, "Bar Brahma - Centro", datas_completas)
-df_conciliacao_b_granja = conciliacao_casa(df_conciliacao_farol, "Bar Brahma - Granja", datas_completas)
-df_conciliacao_b_paulista = conciliacao_casa(df_conciliacao_farol, "Bar Brahma Paulista", datas_completas)
-df_conciliacao_leo_centro = conciliacao_casa(df_conciliacao_farol, "Bar Léo - Centro", datas_completas)
-df_conciliacao_blue_note = conciliacao_casa(df_conciliacao_farol, "Blue Note - São Paulo", datas_completas)
-df_conciliacao_blue_note_novo = conciliacao_casa(df_conciliacao_farol, "Blue Note SP (Novo)", datas_completas)
-df_conciliacao_rolim = conciliacao_casa(df_conciliacao_farol, "Edificio Rolim", datas_completas)
-df_conciliacao_fb = conciliacao_casa(df_conciliacao_farol, "Escritório Fabrica de Bares", datas_completas)
-df_conciliacao_girondino = conciliacao_casa(df_conciliacao_farol, "Girondino ", datas_completas)
-df_conciliacao_girondino_ccbb = conciliacao_casa(df_conciliacao_farol, "Girondino - CCBB", datas_completas)
-df_conciliacao_jacare = conciliacao_casa(df_conciliacao_farol, "Jacaré", datas_completas)
-df_conciliacao_love = conciliacao_casa(df_conciliacao_farol, "Love Cabaret", datas_completas)
-df_conciliacao_orfeu = conciliacao_casa(df_conciliacao_farol, "Orfeu", datas_completas)
-df_conciliacao_priceless = conciliacao_casa(df_conciliacao_farol, "Priceless", datas_completas)
-df_conciliacao_riviera = conciliacao_casa(df_conciliacao_farol, "Riviera Bar", datas_completas)
-df_conciliacao_sanduiche = conciliacao_casa(df_conciliacao_farol, "Sanduiche comunicação LTDA ", datas_completas)
-df_conciliacao_tempus = conciliacao_casa(df_conciliacao_farol, "Tempus Fugit  Ltda ", datas_completas)
-df_conciliacao_ultra = conciliacao_casa(df_conciliacao_farol, "Ultra Evil Premium Ltda ", datas_completas)
+# df_conciliacao_arcos = conciliacao_casa(df_conciliacao_farol, "Arcos", datas_completas)
+# df_conciliacao_b_centro = conciliacao_casa(df_conciliacao_farol, "Bar Brahma - Centro", datas_completas)
+# df_conciliacao_b_granja = conciliacao_casa(df_conciliacao_farol, "Bar Brahma - Granja", datas_completas)
+# df_conciliacao_b_paulista = conciliacao_casa(df_conciliacao_farol, "Bar Brahma Paulista", datas_completas)
+# df_conciliacao_leo_centro = conciliacao_casa(df_conciliacao_farol, "Bar Léo - Centro", datas_completas)
+# df_conciliacao_blue_note = conciliacao_casa(df_conciliacao_farol, "Blue Note - São Paulo", datas_completas)
+# df_conciliacao_blue_note_novo = conciliacao_casa(df_conciliacao_farol, "Blue Note SP (Novo)", datas_completas)
+# df_conciliacao_rolim = conciliacao_casa(df_conciliacao_farol, "Edificio Rolim", datas_completas)
+# df_conciliacao_fb = conciliacao_casa(df_conciliacao_farol, "Escritório Fabrica de Bares", datas_completas)
+# df_conciliacao_girondino = conciliacao_casa(df_conciliacao_farol, "Girondino ", datas_completas)
+# df_conciliacao_girondino_ccbb = conciliacao_casa(df_conciliacao_farol, "Girondino - CCBB", datas_completas)
+# df_conciliacao_jacare = conciliacao_casa(df_conciliacao_farol, "Jacaré", datas_completas)
+# df_conciliacao_love = conciliacao_casa(df_conciliacao_farol, "Love Cabaret", datas_completas)
+# df_conciliacao_orfeu = conciliacao_casa(df_conciliacao_farol, "Orfeu", datas_completas)
+# df_conciliacao_priceless = conciliacao_casa(df_conciliacao_farol, "Priceless", datas_completas)
+# df_conciliacao_riviera = conciliacao_casa(df_conciliacao_farol, "Riviera Bar", datas_completas)
+# df_conciliacao_sanduiche = conciliacao_casa(df_conciliacao_farol, "Sanduiche comunicação LTDA ", datas_completas)
+# df_conciliacao_tempus = conciliacao_casa(df_conciliacao_farol, "Tempus Fugit  Ltda ", datas_completas)
+# df_conciliacao_ultra = conciliacao_casa(df_conciliacao_farol, "Ultra Evil Premium Ltda ", datas_completas)
 
-nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+# Lista: tabela de conciliação (2024 -- atual) de cada casa usando list comprehension
+lista_conciliacao_casas = [conciliacao_casa(df_conciliacao_farol, casa, datas_completas) for casa in casas_validas]
+
+
 meses = list(range(1, 13))
 qtd_dias = []
 
@@ -107,90 +111,98 @@ df_dias_trimestre = df_trimestres.groupby(['Trimestre'])['Qtd_dias'].sum().reset
 df_trimestres = df_trimestres.merge(df_dias_trimestre, right_on='Trimestre', left_on='Trimestre', how='inner')
 
 # Porcentagem de dias não conciliados por mês de cada casa
-lista_conciliacao_arcos = lista_dias_nao_conciliados_casa(df_conciliacao_arcos, ano_farol, df_meses, mes_atual)
-lista_conciliacao_b_centro = lista_dias_nao_conciliados_casa(df_conciliacao_b_centro, ano_farol, df_meses, mes_atual)
-lista_conciliacao_b_granja = lista_dias_nao_conciliados_casa(df_conciliacao_b_granja, ano_farol, df_meses, mes_atual)
-lista_conciliacao_b_paulista = lista_dias_nao_conciliados_casa(df_conciliacao_b_paulista, ano_farol, df_meses, mes_atual)
-lista_conciliacao_leo_centro = lista_dias_nao_conciliados_casa(df_conciliacao_leo_centro, ano_farol, df_meses, mes_atual)
-lista_conciliacao_blue_note = lista_dias_nao_conciliados_casa(df_conciliacao_blue_note, ano_farol, df_meses, mes_atual)
-lista_conciliacao_blue_note_novo = lista_dias_nao_conciliados_casa(df_conciliacao_blue_note_novo, ano_farol, df_meses, mes_atual)
-lista_conciliacao_rolim = lista_dias_nao_conciliados_casa(df_conciliacao_rolim, ano_farol, df_meses, mes_atual)
-lista_conciliacao_fb = lista_dias_nao_conciliados_casa(df_conciliacao_fb, ano_farol, df_meses, mes_atual)
-lista_conciliacao_girondino = lista_dias_nao_conciliados_casa(df_conciliacao_girondino, ano_farol, df_meses, mes_atual)
-lista_conciliacao_girondino_ccbb = lista_dias_nao_conciliados_casa(df_conciliacao_girondino_ccbb, ano_farol, df_meses, mes_atual)
-lista_conciliacao_jacare = lista_dias_nao_conciliados_casa(df_conciliacao_jacare, ano_farol, df_meses, mes_atual)
-lista_conciliacao_love = lista_dias_nao_conciliados_casa(df_conciliacao_love, ano_farol, df_meses, mes_atual)
-lista_conciliacao_orfeu = lista_dias_nao_conciliados_casa(df_conciliacao_orfeu, ano_farol, df_meses, mes_atual)
-lista_conciliacao_priceless = lista_dias_nao_conciliados_casa(df_conciliacao_priceless, ano_farol, df_meses, mes_atual)
-lista_conciliacao_riviera = lista_dias_nao_conciliados_casa(df_conciliacao_riviera, ano_farol, df_meses, mes_atual)
-lista_conciliacao_sanduiche = lista_dias_nao_conciliados_casa(df_conciliacao_sanduiche, ano_farol, df_meses, mes_atual)
-lista_conciliacao_tempus = lista_dias_nao_conciliados_casa(df_conciliacao_tempus, ano_farol, df_meses, mes_atual)
-lista_conciliacao_ultra = lista_dias_nao_conciliados_casa(df_conciliacao_ultra, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_arcos = lista_dias_nao_conciliados_casa(df_conciliacao_arcos, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_b_centro = lista_dias_nao_conciliados_casa(df_conciliacao_b_centro, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_b_granja = lista_dias_nao_conciliados_casa(df_conciliacao_b_granja, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_b_paulista = lista_dias_nao_conciliados_casa(df_conciliacao_b_paulista, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_leo_centro = lista_dias_nao_conciliados_casa(df_conciliacao_leo_centro, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_blue_note = lista_dias_nao_conciliados_casa(df_conciliacao_blue_note, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_blue_note_novo = lista_dias_nao_conciliados_casa(df_conciliacao_blue_note_novo, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_rolim = lista_dias_nao_conciliados_casa(df_conciliacao_rolim, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_fb = lista_dias_nao_conciliados_casa(df_conciliacao_fb, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_girondino = lista_dias_nao_conciliados_casa(df_conciliacao_girondino, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_girondino_ccbb = lista_dias_nao_conciliados_casa(df_conciliacao_girondino_ccbb, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_jacare = lista_dias_nao_conciliados_casa(df_conciliacao_jacare, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_love = lista_dias_nao_conciliados_casa(df_conciliacao_love, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_orfeu = lista_dias_nao_conciliados_casa(df_conciliacao_orfeu, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_priceless = lista_dias_nao_conciliados_casa(df_conciliacao_priceless, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_riviera = lista_dias_nao_conciliados_casa(df_conciliacao_riviera, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_sanduiche = lista_dias_nao_conciliados_casa(df_conciliacao_sanduiche, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_tempus = lista_dias_nao_conciliados_casa(df_conciliacao_tempus, ano_farol, df_meses, mes_atual)
+# lista_conciliacao_ultra = lista_dias_nao_conciliados_casa(df_conciliacao_ultra, ano_farol, df_meses, mes_atual)
 
-lista_casas_mes = [
-    lista_conciliacao_arcos,
-    lista_conciliacao_b_centro,
-    lista_conciliacao_b_granja,
-    lista_conciliacao_b_paulista,
-    lista_conciliacao_leo_centro,
-    lista_conciliacao_blue_note,
-    lista_conciliacao_blue_note_novo,
-    lista_conciliacao_rolim,
-    lista_conciliacao_fb,
-    lista_conciliacao_girondino,
-    lista_conciliacao_girondino_ccbb,
-    lista_conciliacao_jacare,
-    lista_conciliacao_love,
-    lista_conciliacao_orfeu,
-    lista_conciliacao_priceless,
-    lista_conciliacao_riviera,
-    lista_conciliacao_sanduiche,
-    lista_conciliacao_tempus,
-    lista_conciliacao_ultra
-]
+# lista_casas_mes = [
+#     lista_conciliacao_arcos,
+#     lista_conciliacao_b_centro,
+#     lista_conciliacao_b_granja,
+#     lista_conciliacao_b_paulista,
+#     lista_conciliacao_leo_centro,
+#     lista_conciliacao_blue_note,
+#     lista_conciliacao_blue_note_novo,
+#     lista_conciliacao_rolim,
+#     lista_conciliacao_fb,
+#     lista_conciliacao_girondino,
+#     lista_conciliacao_girondino_ccbb,
+#     lista_conciliacao_jacare,
+#     lista_conciliacao_love,
+#     lista_conciliacao_orfeu,
+#     lista_conciliacao_priceless,
+#     lista_conciliacao_riviera,
+#     lista_conciliacao_sanduiche,
+#     lista_conciliacao_tempus,
+#     lista_conciliacao_ultra
+# ]
+
+# Lista: porcentagem de dias não conciliados por mês de cada casa usando list comprehension
+lista_casas_mes = [lista_dias_nao_conciliados_casa(df_conciliacao_casa, ano_farol, df_meses, mes_atual) for df_conciliacao_casa in lista_conciliacao_casas]
+
 
 # Porcentagem de dias não conciliados por trimestre de cada casa
-lista_conciliacao_arcos_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_arcos, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_b_centro_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_centro, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_b_granja_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_granja, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_b_paulista_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_paulista, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_leo_centro_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_leo_centro, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_blue_note_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_blue_note, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_blue_note_novo_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_blue_note_novo, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_rolim_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_rolim, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_fb_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_fb, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_girondino_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_girondino, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_girondino_ccbb_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_girondino_ccbb, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_jacare_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_jacare, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_love_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_love, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_orfeu_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_orfeu, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_priceless_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_priceless, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_riviera_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_riviera, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_sanduiche_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_sanduiche, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_tempus_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_tempus, ano_farol, df_trimestres, mes_farol)
-lista_conciliacao_ultra_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_ultra, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_arcos_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_arcos, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_b_centro_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_centro, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_b_granja_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_granja, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_b_paulista_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_b_paulista, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_leo_centro_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_leo_centro, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_blue_note_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_blue_note, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_blue_note_novo_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_blue_note_novo, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_rolim_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_rolim, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_fb_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_fb, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_girondino_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_girondino, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_girondino_ccbb_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_girondino_ccbb, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_jacare_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_jacare, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_love_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_love, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_orfeu_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_orfeu, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_priceless_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_priceless, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_riviera_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_riviera, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_sanduiche_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_sanduiche, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_tempus_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_tempus, ano_farol, df_trimestres, mes_farol)
+# lista_conciliacao_ultra_trim = lista_dias_nao_conciliados_casa_trim(df_conciliacao_ultra, ano_farol, df_trimestres, mes_farol)
 
-lista_casas_trim = [
-    lista_conciliacao_arcos_trim,
-    lista_conciliacao_b_centro_trim,
-    lista_conciliacao_b_granja_trim,
-    lista_conciliacao_b_paulista_trim,
-    lista_conciliacao_leo_centro_trim,
-    lista_conciliacao_blue_note_trim,
-    lista_conciliacao_blue_note_novo_trim,
-    lista_conciliacao_rolim_trim,
-    lista_conciliacao_fb_trim,
-    lista_conciliacao_girondino_trim,
-    lista_conciliacao_girondino_ccbb_trim,
-    lista_conciliacao_jacare_trim,
-    lista_conciliacao_love_trim,
-    lista_conciliacao_orfeu_trim,
-    lista_conciliacao_priceless_trim,
-    lista_conciliacao_riviera_trim,
-    lista_conciliacao_sanduiche_trim,
-    lista_conciliacao_tempus_trim,
-    lista_conciliacao_ultra_trim
-]
+# lista_casas_trim = [
+#     lista_conciliacao_arcos_trim,
+#     lista_conciliacao_b_centro_trim,
+#     lista_conciliacao_b_granja_trim,
+#     lista_conciliacao_b_paulista_trim,
+#     lista_conciliacao_leo_centro_trim,
+#     lista_conciliacao_blue_note_trim,
+#     lista_conciliacao_blue_note_novo_trim,
+#     lista_conciliacao_rolim_trim,
+#     lista_conciliacao_fb_trim,
+#     lista_conciliacao_girondino_trim,
+#     lista_conciliacao_girondino_ccbb_trim,
+#     lista_conciliacao_jacare_trim,
+#     lista_conciliacao_love_trim,
+#     lista_conciliacao_orfeu_trim,
+#     lista_conciliacao_priceless_trim,
+#     lista_conciliacao_riviera_trim,
+#     lista_conciliacao_sanduiche_trim,
+#     lista_conciliacao_tempus_trim,
+#     lista_conciliacao_ultra_trim
+# ]
+
+# Lista: porcentagem de dias não conciliados por trimestre de cada casa usando list comprehension
+lista_casas_trim = [lista_dias_nao_conciliados_casa_trim(df_conciliacao_casa, ano_farol, df_trimestres, mes_farol) for df_conciliacao_casa in lista_conciliacao_casas]
+
 
 # Exibe gráficos
 with st.container(border=True):

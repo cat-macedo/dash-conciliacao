@@ -8,7 +8,7 @@ from utils.queries import *
 
 
 st.set_page_config(
-    page_title="Conciliação FB",
+    page_title="Conciliação FB - Casas",
     page_icon=":material/money_bag:",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -21,7 +21,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/money_bag: Conciliação FB")
+st.title(":material/money_bag: Conciliação por casa")
 st.divider()
 
 # Recuperando dados

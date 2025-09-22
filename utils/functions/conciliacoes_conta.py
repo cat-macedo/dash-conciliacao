@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from utils.functions.general_functions import *
 from utils.functions.conciliacoes import *
-from utils.queries import *
 from utils.constants.general_constants import *
 
 
@@ -59,9 +57,6 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            # df_blueme_outras_csv = df_blueme_outras.copy()
-            # df_blueme_outras_csv["Despesa_Consta_Extrato"] = np.where(df_blueme_outras_csv["ID_Extrato_Bancario"].isna(), "Não", "Sim")
-            
             col1, col2 = st.columns([6, 1], vertical_alignment="center")
             with col2:
                 button_download(df_blueme_outras, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
@@ -106,9 +101,6 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            # df_blueme_com_parc_outras_csv = df_blueme_com_parc_outras.copy()
-            # df_blueme_com_parc_outras_csv["Despesa_Consta_Extrato"] = np.where(df_blueme_com_parc_outras_csv["ID_Extrato_Bancario"].isna(), "Não", "Sim")
-            
             col1, col2 = st.columns([6, 1], vertical_alignment="center")
             with col2:
                 button_download(df_blueme_com_parc_outras, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
@@ -149,9 +141,6 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             st.dataframe(df_saidas_mutuos_outras_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
             st.write("")
-
-            # df_saidas_mutuos_outras_csv = df_saidas_mutuos_outras.copy()
-            # df_saidas_mutuos_outras_csv["Despesa_Consta_Extrato"] = np.where(df_saidas_mutuos_outras_csv["ID_Extrato_Bancario"].isna(), "Não", "Sim")
 
             col1, col2 = st.columns([6, 1], vertical_alignment="center")
             with col2:
@@ -233,9 +222,6 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            # df_blueme_sem_parc_csv = df_blueme_sem_parc.copy()
-            # df_blueme_sem_parc_csv["Despesa_Consta_Extrato"] = np.where(df_blueme_sem_parc_csv["ID_Extrato_Bancario"].isna(), "Não", "Sim")
-
             col1, col2 = st.columns([6, 1], vertical_alignment="center")
             with col2:
                 button_download(df_blueme_sem_parc, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
@@ -294,9 +280,6 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            # df_blueme_com_parc_csv = df_blueme_com_parc.copy()
-            # df_blueme_com_parc_csv["Despesa_Consta_Extrato"] = np.where(df_blueme_com_parc_csv["ID_Extrato_Bancario"].isna(), "Não", "Sim")
-
             col1, col2 = st.columns([6, 1], vertical_alignment="center")
             with col2:
                 button_download(df_blueme_com_parc, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
@@ -339,9 +322,6 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             st.dataframe(df_bloqueios_conta_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
             st.write("")
-
-            # df_bloqueios_conta_csv = df_bloqueios_conta.copy()
-            # df_bloqueios_conta_csv["Despesa_Consta_Extrato"] = np.where(df_blueme_sem_parc_csv["ID_Extrato_Bancario"].isna(), "Não", "Sim")
 
             col1, col2 = st.columns([6, 1], vertical_alignment="center")
             with col2:
