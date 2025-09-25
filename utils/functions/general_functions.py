@@ -231,7 +231,7 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, principal,
     exceptions = dict com pares manuais
     limiar = pontuação mínima de similaridade (0-100)
     """
-    
+
     # merge 
     df_tmp = df_custos.merge(
         df_extratos, 

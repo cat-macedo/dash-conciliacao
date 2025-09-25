@@ -57,8 +57,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_outras, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
         
@@ -101,8 +101,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_com_parc_outras, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
         
@@ -142,8 +142,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_saidas_mutuos_outras, 'ID_Extrato_Bancario', f"Saidas Mutuos - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -160,7 +160,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         else:
             df_extratos_conta.loc[:, 'Valor'] = df_extratos_conta['Valor'] * -1
         
-        df_extratos_conta.loc[:, 'Data_Transacao'] = df_extratos_conta['Data_Transacao'].dt.date
+        df_extratos_conta.loc[:, 'Data_Transacao'] = pd.to_datetime(df_extratos_conta['Data_Transacao'], errors='coerce')
 
         if item == "blueme sem parcelamento":
             if nome_conta == "Arcos - Arcos Bar - Banco do Brasil": 
@@ -222,8 +222,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_sem_parc, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -323,8 +323,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_bloqueios_conta, 'ID_Extrato_Bancario', f"Bloqueios Judicias - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -427,7 +427,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # Garante que ambos estão no mesmo formato (datetime)
             df_extratos_conta.loc[:, 'Data_Transacao'] = pd.to_datetime(df_extratos_conta['Data_Transacao'], errors='coerce')
-            df_concat['Realizacao_Pgto'] = pd.to_datetime(df_concat['Realizacao_Pgto'], errors='coerce')
+            # df_concat.loc[:, 'Realizacao_Pgto'] = pd.to_datetime(df_concat['Realizacao_Pgto'], errors='coerce')
         
             # Df com o merge de cada item do extrato com despesa correspondente
             df_concat_merge = merge_com_fuzzy(
@@ -457,8 +457,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("extrato")
             
             st.write("")
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_concat_merge, 'ID_Despesa', f"Extrato - Despesas", key=f'download_{item}_{conta}')
 
 
