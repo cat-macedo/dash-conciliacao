@@ -63,7 +63,7 @@ with col_casas:
 
 with col_botao:
     st.write("")  # Espaçamento para alinhar com o multiselect
-    if st.button("🏢 Sem Sócios Externos ---", 
+    if st.button("🏢 Sem Sócios Externos", 
                  help="Seleciona automaticamente todas as casas que não possuem sócios externos (Bit_Socios_Externos = 0)", 
                  use_container_width=True):
         # Filtrando casas sem sócios externos
@@ -326,6 +326,7 @@ with tab1:
     def prepare_monthly_data():
         # Receitas - Extrato Zig
         receitas_zig = df_extrato_zig_filtrada.copy()
+        
         mask_extrato_zig = (
         receitas_zig['Descricao'].str.contains('Cartão de Débito integrado Zig', na=False) |
         receitas_zig['Descricao'].str.contains('Cartão de Crédito integrado Zig', na=False) |
